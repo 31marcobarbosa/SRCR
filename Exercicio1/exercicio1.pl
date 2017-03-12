@@ -81,3 +81,160 @@ ato_medico( 12-2-17,1,1,13.75 ).
 
 comprimento([],0).
 comprimento([_|Xs],N) :- comprimento(Xs,G) , N is 1 + G.
+
+
+% -------------------------------------------------------------
+% Identificar os utentes por critérios de seleção
+% 
+
+% -------------------------------------------------------------
+% Identificar as instituições prestadoras de cuidados de saúde
+% Extensao do predicado instCuidSaud : I -> {V,F}
+
+instCuidSaud([I]) :- cuidado_prestado(_,_,I,_).
+instCuidSaud([X|Xs]) :- cuidado_prestado(_,_,X,_) ,
+						instCuidSaud(Xs).
+
+% -------------------------------------------------------------
+% Identificar os cuidados prestados por instituição
+% Extensao do predicado cuidInst : I, L -> {V,F}
+
+cuidInst(I,[X]) :- cuidado_prestado(_,X,I,_).
+cuidInst(I,[X|Xs]) :- cuidado_prestado(_,X,I,_) , 
+					  cuidInst(I,Xs).
+
+% -------------------------------------------------------------
+% Identificar os cuidados prestados por serviço
+% Extensao do predicado cuidServ : I, L -> {V,F}
+
+
+
+% -------------------------------------------------------------
+% Identificar os utentes de uma Instituição
+% Extensao do predicado utentesInstituicao : I, L -> {V,F}
+
+% -------------------------------------------------------------
+% Identificar os utentes de um Serviço
+% Extensao do predicado utentesServico : I, L -> {V,F}
+
+% -------------------------------------------------------------
+% Identificar os atos médicos realizados por utente
+% Extensao do predicado atoUte : I, L -> {V,F}
+
+% -------------------------------------------------------------
+% Identificar os atos médicos realizados por instituição
+% Extensao do predicado atoInst : I, L -> {V,F}
+
+% -------------------------------------------------------------
+% Identificar os atos médicos realizados por serviço
+% Extensao do predicado atoServ : I, L -> {V,F}
+
+% -------------------------------------------------------------
+% Determinar todas as instituições a que um utente recorreu 
+% Extensao do predicado nInstUte : I, L -> {V,F}
+
+% -------------------------------------------------------------
+% Determinar todas os serviços a que um utente recorreu 
+% Extensao do predicado nServUte : I, L -> {V,F}
+
+% -------------------------------------------------------------
+% Calcular o custo total dos atos médicos por utente 
+% Extensao do predicado custoUte : I, L -> {V,F}
+
+% -------------------------------------------------------------
+% Calcular o custo total dos atos médicos por serviço 
+% Extensao do predicado custoServ : I, L -> {V,F}
+
+% -------------------------------------------------------------
+% Calcular o custo total dos atos médicos por instituição
+% Extensao do predicado custoInst : I, L -> {V,F}
+
+% -------------------------------------------------------------
+% Calcular o custo total dos atos médicos por data 
+% Extensao do predicado custoData : I, L -> {V,F}
+
+% -------------------------------------------------------------
+% Registar utentes
+% Extensao do predicado registaUtente : L -> {V,F}
+
+registaUtente(Id,N,I,M) :- evolucao(utente(Id,N,I,M)).
+
+% -------------------------------------------------------------
+% Registar cuidados
+% Extensao do predicado registaCuidados : L -> {V,F}
+
+registaCuidados(Id,D,I,C) :- evolucao(cuidado_prestado(Id,D,I,C)).
+
+% -------------------------------------------------------------
+% Registar atos médicos
+% Extensao do predicado registaAtos : L -> {V,F}
+
+registaAtos(D,IdUt,IdServ,C) :- evolucao(ato_medico(D,IdUt,IdServ,C)).
+
+% -------------------------------------------------------------
+% Remover utentes
+% Extensao do predicado removeUtentes : L -> {V,F}
+
+removeUtentes(U) :- findall((U,N,I,M),utente(U,N,I,M), L),
+					retractUtentes(L).
+
+
+retractUtentes([Id,N,I,M]) :- retract(utente(Id,N,I,M)).
+retractUtentes([Id,N,I,M|Xs]) :- retract(utente(Id,N,I,M)) ,
+								 retractUtentes(Xs).
+
+
+% -------------------------------------------------------------
+% Remover cuidados
+% Extensao do predicado removeCuidados : L -> {V,F}
+
+removeCuidados(C) :- findall((C,D,I,Cid),cuidado_prestado(C,D,I,Cid), L),
+					 retractCuidados(L).
+
+
+retractCuidados([C,D,I,Cid]) :- retract(cuidado_prestado(C,D,I,Cid)).
+retractCuidados([C,D,I,Cid|Xs]) :- retract(cuidado_prestado(C,D,I,Cid)),
+								   retractCuidados(Xs).
+
+% -------------------------------------------------------------
+% Remover atos médicos
+% Extensao do predicado removeAtos : L -> {V,F}
+
+removeAtos(D,IdUt,IdServ,X) :- findall((D,IdUt,IdServ,X),ato_medico(D,IdUt,IdServ,X), L),
+					 		   retractAtos(L).
+
+
+retractAtos([D,IdUt,IdServ,X]) :- retract(ato_medico(D,IdUt,IdServ,X)).
+retractAtos([D,IdUt,IdServ,X|Xs]) :- retract(ato_medico(D,IdUt,IdServ,X)),
+									 retractAtos(Xs)
+
+
+
+
+
+
+
+% -------------------------------------------------------------
+% Extensao do meta-predicado nao: P -> {V,F}
+
+nao(P) :-
+  P, !, fail.
+nao(_).
+
+
+% -------------------------------------------------------------
+% Extensão do predicado que permite a evolucao do conhecimento
+
+
+evolucao(E) :- findall(I,+E::I,L),
+			   inserir(E),
+			   teste(L).
+
+% assert = adicionar informação
+% retract = remover informação
+
+inserir(E) :- assert(E).
+inserir(E) :- retract(E),!,fail.
+
+teste([]).
+teste([X|xs]) :- X , teste(Xs).
