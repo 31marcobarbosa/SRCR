@@ -19,7 +19,7 @@
 
 :- dynamic utente/4 .
 :- dynamic cuidado_prestado/4 .
-:- dynamic ato_medico/4 .
+:- dynamic atos/4 .
 
 
 % --------------------------------------------------------------
@@ -36,20 +36,20 @@ utente( 5,carolina,50,braga ).
 % Extensao do predicado cuidado_prestado: IdServ, Descrição, Instituição, Cidade -> { V, F }
 
 cuidado_prestado( 1,'Pediatria','Hospital','Braga' ).
-cuidado_prestado( 2,geral,hospital,braga ).
-cuidado_prestado( 3,ortopedia,hospital,braga ).
-cuidado_prestado( 4,oftalmologia,hospital,braga ).
-cuidado_prestado( 5,oncologia,ipo,porto ).
+cuidado_prestado( 2,'geral','hospital','braga' ).
+cuidado_prestado( 3,'ortopedia','hospital','braga' ).
+cuidado_prestado( 4,'oftalmologia','hospital','braga' ).
+cuidado_prestado( 5,'oncologia','ipo','porto' ).
 
 
 % --------------------------------------------------------------
 % Extensao do predicado ato_medico:  Data, IdUt, IdServ, Custo -> { V, F }
 
-ato_medico( '1-3-17',1,1,25.5 ).
-ato_medico( '25-2-17',1,1,12 ).
-ato_medico( 3-3-17,1,1,45 ).
-ato_medico( '11-1-17',1,1,2 ).
-ato_medico( '12-2-17',1,1,13.75 ).
+atos( '1-3-17',1,1,'25.5' ).
+atos( '25-2-17',1,1,'12' ).
+atos( '3-3-17',1,1,'45' ).
+atos( '11-1-17',1,1,'2' ).
+atos( '12-2-17',1,1,'13.75' ).
 
 % --------------------------------------------------------------
 % % Extensão do predicado que permite a evolucao do conhecimento
@@ -97,15 +97,15 @@ retroceder(E) :- solucoes(I,+E::I,L),
 % Invariante Estrutural para cuidado_prestado:
 % não permite a inserção de conhecimento repetido
 
-+ato_medico(D,IDUT,IDS,C) :: (solucoes((D,IDUT,IDS),(utente(D,IDUT,IDS,_)),L),
++atos(D,IDUT,IDS,C) :: (solucoes((D,IDUT,IDS),(atos(D,IDUT,IDS,_)),L),
                               comprimento(L,N),
                               N == 1).
 
 % ---------------------------------------------------------
 % Invariante que certifica a existência de um ID de utente e de um ID servico
 
-+ato_medico(D,IDUT,IDS,C) :: (utente(IDUT,_,_,_),
-                              servico(IDS,_,_,_)).
++atos(D,IDUT,IDS,C) :: (utente(IDUT,_,_,_),
+                              cuidado_prestado(IDS,_,_,_)).
 
 % -------------------------------------------------------------
 % Identificar os utentes por critérios de seleção
@@ -199,7 +199,7 @@ registaCuidados(ID,D,I,C) :- evolucao(cuidado_prestado(ID,D,I,C)).
 % Registar atos médicos
 % Extensao do predicado registaAtos : L -> {V,F}
 
-registaAtos(D,IDUT,IDS,C) :- evolucao(ato_medico(D,IDUT,IDS,C)).
+registaAtos(D,IDUT,IDS,C) :- evolucao(atos(D,IDUT,IDS,C)).
 
 % -------------------------------------------------------------
 % Remover utentes
@@ -220,7 +220,7 @@ removeCuidados(I) :- retroceder(cuidado_prestado(I,D,C,Cid)).
 % Remover atos médicos
 % Extensao do predicado removeAtos : L -> {V,F}
 
-removeAtos(D,IDUT,IDS) :- retroceder(ato_medico(D,IDUT,IDS,X)).
+removeAtos(D,IDUT,IDS) :- retroceder(atos(D,IDUT,IDS,_)).
                                
 
 
