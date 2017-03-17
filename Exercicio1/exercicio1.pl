@@ -110,13 +110,13 @@ retroceder(E) :- solucoes(I,+E::I,L),
 % -------------------------------------------------------------
 % Identificar os utentes por critérios de seleção 
 
-utentesID(ID,R) :- solucoes((ID,X,Y,Z),utente(ID,X,Y,Z),R).
+utenteID(ID,R) :- solucoes((ID,X,Y,Z),utente(ID,X,Y,Z),R).
 
-utentesNome(NM,R) :- solucoes((X,NM,Y,Z),utente(X,NM,Y,Z),R).
+utenteNome(NM,R) :- solucoes((X,NM,Y,Z),utente(X,NM,Y,Z),R).
 
-utentesIdade(I,R) :- solucoes((X,Y,I,Z),utente(X,Y,I,Z),R).
+utenteIdade(I,R) :- solucoes((X,Y,I,Z),utente(X,Y,I,Z),R).
 
-utentesLugar(L,R) :- solucoes((X,Y,Z,L),utente(X,Y,Z,L),R).
+utenteLugar(L,R) :- solucoes((X,Y,Z,L),utente(X,Y,Z,L),R).
 
 % ---------------------------------------------------------
 
@@ -155,21 +155,25 @@ cuidInst(I,R) :- solucoes(C,cuidado_prestado(_,C,I,_),R).
 % Extensao do predicado cuidCid : I, L -> {V,F}
 
 cuidCid(C,R) :- solucoes((C,S),cuidado_prestado(_,S,_,C),P),
-                 retiraRep(P,R).
-
+                retiraRep(P,R).
 
 % -------------------------------------------------------------
 % Identificar os utentes de uma Instituição
 % Extensao do predicado utentesInstituicao : I, L -> {V,F}
 
-utentesInstituicao(U, R) :- solucoes(S, atos(_,U,S,_), P),
-                            retiraRep(P,K),
-                            servicoInstituicao(K,R).
+utentesInstituicao(I,R) :- solucoes(S, cuidado_prestado(S,_,I,_), P),
+                           utServ(P,F),
+                           utNome(F,R).
+                           
+utServ([S],R) :- utentesServico(S,R).
+utServ([S|Ss],R) :- utentesServico(S,F),
+                    utServ(Ss,P),
+                    concat(F,P,R).
 
-servicoInstituicao([S], R) :- solucoes(I, cuidado_prestado(S,_,I,_), R).                           
-servicoInstituicao([S|Ss], R) :- solucoes(I, cuidado_prestado(S,_,I,_), P),
-                                 servicoInstituicao(Ss,F),
-                                 concat(P,F,R).
+utNome([U],R) :- utenteID(U,R).
+utNome([U|Us],R) :- utenteID(U,F),
+                    utNome(Us,P),
+                    concat(F,P,R).
 
 % -------------------------------------------------------------
 % Identificar os utentes de um Serviço
@@ -197,9 +201,20 @@ atoUte(U,R) :- solucoes((X,Y,Z), atos(X,U,Y,Z), P),
 % Determinar todas as instituições a que um utente recorreu 
 % Extensao do predicado nInstUte : I, L -> {V,F}
 
+nInstUte(U,R) :- nServUte(U,F),
+                 servicosInstituicao(F,R).
+
+servicosInstituicao([S], R) :- solucoes(I, cuidado_prestado(S,_,I,_), R).                    
+servicosInstituicao([S|Ss], R) :- solucoes(I, cuidado_prestado(S,_,I,_), P),
+                                  servicoInstituicao(Ss,F),
+                                  concat(P,F,R).
+
 % -------------------------------------------------------------
 % Determinar todas os serviços a que um utente recorreu 
 % Extensao do predicado nServUte : I, L -> {V,F}
+
+nServUte(U,R) :- solucoes(S, atos(_,U,S,_), P),
+                 retiraRep(P,R).
 
 % -------------------------------------------------------------
 % Calcular o custo total dos atos médicos por utente 
