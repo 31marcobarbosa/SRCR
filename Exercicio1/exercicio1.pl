@@ -108,46 +108,59 @@ retroceder(E) :- solucoes(I,+E::I,L),
                               cuidado_prestado(IDS,_,_,_)).
 
 % -------------------------------------------------------------
-% Identificar os utentes por critérios de seleção
-% 
+% Identificar os utentes por critérios de seleção 
 
 utentesID(ID,R) :- solucoes((ID,X,Y,Z),utente(ID,X,Y,Z),R).
 
-utenteNome(NM,R) :- solucoes((X,NM,Y,Z),utente(X,NM,Y,Z),R).
+utentesNome(NM,R) :- solucoes((X,NM,Y,Z),utente(X,NM,Y,Z),R).
 
 utentesIdade(I,R) :- solucoes((X,Y,I,Z),utente(X,Y,I,Z),R).
 
 utentesLugar(L,R) :- solucoes((X,Y,Z,L),utente(X,Y,Z,L),R).
+
+% ---------------------------------------------------------
+
+
+concat([],L2,L2).
+concat(L1,[],L1).
+concat([X|L1],L2,[X|L]) :- concat(L1,L2,L).
 
 
 % -------------------------------------------------------------
 % Identificar as instituições prestadoras de cuidados de saúde
 % Extensao do predicado instCuidSaud : I -> {V,F}
 
-instCuidSaud([I]) :- cuidado_prestado(_,_,I,_).
-instCuidSaud([X|Xs]) :- cuidado_prestado(_,_,X,_) ,
-                        instCuidSaud(Xs).
+instCuidSaud(R) :- solucoes(I,cuidado_prestado(_,_,I,_),L),
+                   retiraRep(L,R).
+
+retiraRep([],[]).
+retiraRep([X|A],R) :- retiraEle(X,A,L),
+                      retiraRep(L,T),
+                      R = [X|T].
+
+retiraEle(A,[],[]).
+retiraEle(A,[A|Y],T) :- retiraEle(A,Y,T).
+retiraEle(A,[X|Y],T) :- X \== A,
+                        retiraEle(A,Y,R),
+                        T = [X|R].
 
 % -------------------------------------------------------------
 % Identificar os cuidados prestados por instituição
 % Extensao do predicado cuidInst : I, L -> {V,F}
 
-cuidInst(I,[X]) :- cuidado_prestado(_,X,I,_).
-cuidInst(I,[X|Xs]) :- cuidado_prestado(_,X,I,_) , 
-                      cuidInst(I,Xs).
+cuidInst(I,R) :- solucoes(C,cuidado_prestado(_,C,I,_),R).
 
 % -------------------------------------------------------------
-% Identificar os cuidados prestados por serviço
-% Extensao do predicado cuidServ : I, L -> {V,F}
+% Identificar os cuidados prestados por cidade
+% Extensao do predicado cuidCid : I, L -> {V,F}
 
-cuidServ(S,[C]) :- cuidado_prestado(S,C,_,_).
-cuidServ(S,[C|Cs]) :- cuidado_prestado(S,C,_,_) , 
-                      cuidServ(S,Cs).
+cuidCid(C,R) :- solucoes((C,S),cuidado_prestado(_,S,_,C),P),
+                 retiraRep(P,R).
+
 
 % -------------------------------------------------------------
 % Identificar os utentes de uma Instituição
 % Extensao do predicado utentesInstituicao : I, L -> {V,F}
-
 
 
 % -------------------------------------------------------------
