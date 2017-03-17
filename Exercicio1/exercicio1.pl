@@ -2,6 +2,13 @@
 % Sistemas de Representação de Conhecimento e Raciocínio - Exercício 1
 % Grupo 1
 
+% Adriana Guedes
+% Marco Barbosa 
+% Guilherme Guerreiro
+% Ricardo Certo
+
+%-----------------------------------------------------------------------
+% SICStus PROLOG: Declaracoes iniciais
 
 :- set_prolog_flag( discontiguous_warnings,off ).
 :- set_prolog_flag( single_var_warnings,off ).
@@ -12,7 +19,8 @@
 
 :- op(900,xfy,'::').
 
-
+% -------------------------------------------------------------------------------------------
+% BASE DE CONHECIMENTO
 %--------------------------------------------------------------------------------------------
 % Base de conhecimento com informação sobre cuidado prestado, ato médico , utente
 
@@ -25,21 +33,21 @@
 % --------------------------------------------------------------
 % Extensao do predicado utente : IdUt, Nome, Idade, Morada -> { V, F }
 
-utente( 1,'carlos',35,'braga' ).
-utente( 2,'joao',12,'barcelos' ).
-utente( 3,'julio',89,'porto' ).
-utente( 4,'ana',25,'lisboa' ).
-utente( 5,'carolina',50,'braga' ).
+utente( 1,'Carlos',35,'Braga' ).
+utente( 2,'Joao',12,'Guimaraes' ).
+utente( 3,'Julio',89,'Guimaraes' ).
+utente( 4,'Ana',25,'Lisboa' ).
+utente( 5,'Carolina',50,'Braga' ).
 
 
 % --------------------------------------------------------------
 % Extensao do predicado cuidado_prestado: IdServ, Descrição, Instituição, Cidade -> { V, F }
 
-cuidado_prestado( 1,'pediatria','hospital privado de braga','braga' ).
-cuidado_prestado( 2,'geral','hospital publico','braga' ).
-cuidado_prestado( 3,'ortopedia','hospital público','braga' ).
-cuidado_prestado( 4,'oftalmologia','hospital','braga' ).
-cuidado_prestado( 5,'oncologia','ipo','porto' ).
+cuidado_prestado( 1,'Pediatria','Hospital privado de braga','Braga' ).
+cuidado_prestado( 2,'Geral','Hospital publico','Braga' ).
+cuidado_prestado( 3,'Ortopedia','Hospital público','Braga' ).
+cuidado_prestado( 4,'Oftalmologia','Hospital','Braga' ).
+cuidado_prestado( 5,'Oncologia','Ipo','Porto' ).
 
 
 % --------------------------------------------------------------
@@ -51,9 +59,12 @@ atos( '3-3-17', 3, 1, 45 ).
 atos( '11-1-17', 1, 1, 2 ).
 atos( '12-2-17', 5, 1, 13.75 ).
 
-% --------------------------------------------------------------
-% % Extensão do predicado que permite a evolucao do conhecimento
 
+
+
+% --------------------------------------------------------------
+
+% Extensão do predicado comprimento : L , R -> {V,R} 
 comprimento([],0).
 comprimento([X|P],N) :- comprimento(P,G) , 
                         N is 1 + G.
@@ -63,6 +74,7 @@ remove(T) :- retract(T).
 inserir(E) :- assert(E).
 inserir(E) :- retract(E),!,fail.
 
+% Extensão do predicado que permite a evolucao do conhecimento
 evolucao(E) :- solucoes(I,+E::I,L),
                inserir(E),
                teste(L).
@@ -70,8 +82,10 @@ evolucao(E) :- solucoes(I,+E::I,L),
 teste([]).
 teste([X|Y]) :- X , teste(Y).
 
+% Extensão do predicado que permite a procura do conhecimento
 solucoes(X,Y,Z) :- findall(X,Y,Z).
 
+% Extensão do predicado que permite o retrodecimento do conhecimento
 retroceder(E) :- solucoes(I,+E::I,L),
                  teste(L),
                  remove(E).
@@ -119,6 +133,8 @@ utenteIdade(I,R) :- solucoes((X,Y,I,Z),utente(X,Y,I,Z),R).
 utenteLugar(L,R) :- solucoes((X,Y,Z,L),utente(X,Y,Z,L),R).
 
 % ---------------------------------------------------------
+% Predicado que junta duas listas numa nova lista
+% Extensao do predicado concat : L1, L2, L -> {V,F}
 
 concat([],L2,L2).
 concat(L1,[],L1).
@@ -212,11 +228,12 @@ atoServ(S,R) :- solucoes((X,Y,S,Z), atos(X,Y,S,Z), R).
 % Extensao do predicado nInstUte : I, L -> {V,F}
 
 nInstUte(U,R) :- nServUte(U,F),
-                 servicosInstituicao(F,R).
+                 servicosInstituicao(F,P),
+                 retiraRep(P,R).
 
-servicosInstituicao([S], R) :- solucoes(I, cuidado_prestado(S,_,I,_), R).                    
-servicosInstituicao([S|Ss], R) :- solucoes(I, cuidado_prestado(S,_,I,_), P),
-                                  servicoInstituicao(Ss,F),
+servicosInstituicao([S],R) :- solucoes(I, cuidado_prestado(S,_,I,_), R).                    
+servicosInstituicao([S|Ss],R) :-  solucoes(I, cuidado_prestado(S,_,I,_), P),
+                                  servicosInstituicao(Ss,F),
                                   concat(P,F,R).
 
 % -------------------------------------------------------------
@@ -260,21 +277,19 @@ custoData(D,R) :- solucoes((D,X,Y,Z), atos(D,X,Y,Z), F),
 
 % -------------------------------------------------------------
 % Registar utentes
-% Extensao do predicado registaUtente : L -> {V,F}
-
-regista(E) :- evolucao(E).
+% Extensao do predicado registaUtentes : L,N,O,P -> {V,F}
 
 registaUtentes(I,N,O,P) :- evolucao(utente(I,N,O,P)).  
 
 % -------------------------------------------------------------
 % Registar cuidados
-% Extensao do predicado registaCuidados : L -> {V,F}
+% Extensao do predicado registaCuidados : L,M,N,O -> {V,F}
 
 registaCuidados(ID,D,I,C) :- evolucao(cuidado_prestado(ID,D,I,C)).
 
 % -------------------------------------------------------------
 % Registar atos médicos
-% Extensao do predicado registaAtos : L -> {V,F}
+% Extensao do predicado registaAtos : L,M,N,O -> {V,F}
 
 registaAtos(D,IDUT,IDS,C) :- evolucao(atos(D,IDUT,IDS,C)).
 
@@ -297,3 +312,26 @@ removeCuidados(I) :- retroceder(cuidado_prestado(I,D,C,Cid)).
 removeAtos(D,IDUT,IDS) :- retroceder(atos(D,IDUT,IDS,_)).
                                
 
+% ---------------------------------------------------------
+% EXTRAS
+% ----------------------------------------------------------
+% Numero de serviços de uma Instituição
+% Extensão do predicado numeroServicos : I , R -> {V,F}
+
+numeroServicos(I,R) :- solucoes(S, cuidado_prestado(S,_,I,_), P),
+                       comprimento(P,T),
+                       R is T.
+
+% Numero de Utentes
+% Extensão do predicado numeroUtentes : I -> {V,F}
+
+numeroUtentes(R) :- solucoes(U,utente(U,_,_,_),L),
+                    comprimento(L,T),
+                    R is T.
+
+% Numero de Atos
+% Extensão do predicado numeroAtos : I -> {V,F}
+
+numeroAtos(R) :- solucoes(A,atos(A,_,_,_),L),
+                 comprimento(L,T),
+                 R is T.
