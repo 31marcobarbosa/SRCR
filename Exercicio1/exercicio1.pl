@@ -45,11 +45,11 @@ cuidado_prestado( 5,'oncologia','ipo','porto' ).
 % --------------------------------------------------------------
 % Extensao do predicado ato_medico:  Data, IdUt, IdServ, Custo -> { V, F }
 
-atos( '1-3-17',1,5,'25.5' ).
-atos( '25-2-17',1,2,'12' ).
-atos( '3-3-17',3,1,'45' ).
-atos( '11-1-17',1,1,'2' ).
-atos( '12-2-17',5,1,'13.75' ).
+atos( '1-3-17', 1, 5, 25.5 ).
+atos( '25-2-17', 1, 2, 12 ).
+atos( '3-3-17', 3, 1, 45 ).
+atos( '11-1-17', 1, 1, 2 ).
+atos( '12-2-17', 5, 1, 13.75 ).
 
 % --------------------------------------------------------------
 % % Extensão do predicado que permite a evolucao do conhecimento
@@ -120,11 +120,9 @@ utenteLugar(L,R) :- solucoes((X,Y,Z,L),utente(X,Y,Z,L),R).
 
 % ---------------------------------------------------------
 
-
 concat([],L2,L2).
 concat(L1,[],L1).
 concat([X|L1],L2,[X|L]) :- concat(L1,L2,L).
-
 
 % -------------------------------------------------------------
 % Identificar as instituições prestadoras de cuidados de saúde
@@ -162,17 +160,12 @@ cuidCid(C,R) :- solucoes((C,S),cuidado_prestado(_,S,_,C),P),
 % Extensao do predicado utentesInstituicao : I, L -> {V,F}
 
 utentesInstituicao(I,R) :- solucoes(S, cuidado_prestado(S,_,I,_), P),
-                           utServ(P,F),
-                           utNome(F,R).
+                           retiraRep(P,F),
+                           utServ(F,R).
                            
 utServ([S],R) :- utentesServico(S,R).
 utServ([S|Ss],R) :- utentesServico(S,F),
                     utServ(Ss,P),
-                    concat(F,P,R).
-
-utNome([U],R) :- utenteID(U,R).
-utNome([U|Us],R) :- utenteID(U,F),
-                    utNome(Us,P),
                     concat(F,P,R).
 
 % -------------------------------------------------------------
@@ -180,22 +173,39 @@ utNome([U|Us],R) :- utenteID(U,F),
 % Extensao do predicado utentesServico : I, L -> {V,F}
 
 utentesServico(S,R) :- solucoes(U, atos(_,U,S,_), P),
-                       retiraRep(P,R).
+                       retiraRep(P,F),
+                       idUt(F,R).
+
+idUt([U],R) :- utenteID(U,R).
+idUt([U|Us],R) :- utenteID(U,F),
+                  idUt(Us,P),
+                  concat(F,P,R).
 
 % -------------------------------------------------------------
 % Identificar os atos médicos realizados por utente
 % Extensao do predicado atoUte : I, L -> {V,F}
 
-atoUte(U,R) :- solucoes((X,Y,Z), atos(X,U,Y,Z), P),
+atoUte(U,R) :- solucoes((X,U,Y,Z), atos(X,U,Y,Z), P),
                retiraRep(P,R).
 
 % -------------------------------------------------------------
 % Identificar os atos médicos realizados por instituição
 % Extensao do predicado atoInst : I, L -> {V,F}
 
+atoInst(I,R) :- solucoes(S, cuidado_prestado(S,_,I,_), F),
+                retiraRep(F,P),
+                servAto(P,R).
+
+servAto([S],R) :- atoServ(S,R).
+servAto([S|Ss],R) :- atoServ(S,F),
+                     servAto(Ss,P),
+                     concat(F,P,R). 
+
 % -------------------------------------------------------------
 % Identificar os atos médicos realizados por serviço
 % Extensao do predicado atoServ : I, L -> {V,F}
+
+atoServ(S,R) :- solucoes((X,Y,S,Z), atos(X,Y,S,Z), R).
 
 % -------------------------------------------------------------
 % Determinar todas as instituições a que um utente recorreu 
@@ -220,17 +230,33 @@ nServUte(U,R) :- solucoes(S, atos(_,U,S,_), P),
 % Calcular o custo total dos atos médicos por utente 
 % Extensao do predicado custoUte : I, L -> {V,F}
 
+custoUte(U,R) :- atoUte(U,F),
+                 atoCusto(F,R).
+
+atoCusto([(_,_,_,C)],R) :- R is C.
+atoCusto([(_,_,_,C)|Cs],R) :- atoCusto(Cs,F),
+                              R is C+F.
+
 % -------------------------------------------------------------
 % Calcular o custo total dos atos médicos por serviço 
 % Extensao do predicado custoServ : I, L -> {V,F}
+
+custoServ(S,R) :- atoServ(S,F),
+                  atoCusto(F,R).
 
 % -------------------------------------------------------------
 % Calcular o custo total dos atos médicos por instituição
 % Extensao do predicado custoInst : I, L -> {V,F}
 
+custoInst(I,R) :- atoInst(I,F),
+                  atoCusto(F,R).
+
 % -------------------------------------------------------------
 % Calcular o custo total dos atos médicos por data 
 % Extensao do predicado custoData : I, L -> {V,F}
+
+custoData(D,R) :- solucoes((D,X,Y,Z), atos(D,X,Y,Z), F),
+                  atoCusto(F,R).
 
 % -------------------------------------------------------------
 % Registar utentes
