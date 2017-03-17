@@ -1,8 +1,11 @@
 
-
 % Sistemas de Representação de Conhecimento e Raciocínio - Exercício 1
 % Grupo 1
 
+
+:- set_prolog_flag( discontiguous_warnings,off ).
+:- set_prolog_flag( single_var_warnings,off ).
+:- set_prolog_flag( unknown,fail ).
 
 %--------------------------------------------------------------------------------------------
 % Definição de invariante
@@ -14,9 +17,9 @@
 % Base de conhecimento com informação sobre cuidado prestado, ato médico , utente
 
 
-:- dynamic( utente/4 ).
-:- dynamic( cuidado_prestado/4 ).
-:- dynamic( ato_medico/4 ).
+:- dynamic utente/4 .
+:- dynamic cuidado_prestado/4 .
+:- dynamic ato_medico/4 .
 
 
 % --------------------------------------------------------------
@@ -32,7 +35,7 @@ utente( 5,carolina,50,braga ).
 % --------------------------------------------------------------
 % Extensao do predicado cuidado_prestado: IdServ, Descrição, Instituição, Cidade -> { V, F }
 
-cuidado_prestado( 1,pediatria,hospital,braga ).
+cuidado_prestado( 1,'Pediatria','Hospital','Braga' ).
 cuidado_prestado( 2,geral,hospital,braga ).
 cuidado_prestado( 3,ortopedia,hospital,braga ).
 cuidado_prestado( 4,oftalmologia,hospital,braga ).
@@ -42,46 +45,67 @@ cuidado_prestado( 5,oncologia,ipo,porto ).
 % --------------------------------------------------------------
 % Extensao do predicado ato_medico:  Data, IdUt, IdServ, Custo -> { V, F }
 
-ato_medico( 1-3-17,1,1,25.5 ).
-ato_medico( 25-2-17,1,1,12 ).
+ato_medico( '1-3-17',1,1,25.5 ).
+ato_medico( '25-2-17',1,1,12 ).
 ato_medico( 3-3-17,1,1,45 ).
-ato_medico( 11-1-17,1,1,2 ).
-ato_medico( 12-2-17,1,1,13.75 ).
+ato_medico( '11-1-17',1,1,2 ).
+ato_medico( '12-2-17',1,1,13.75 ).
 
+% --------------------------------------------------------------
+% % Extensão do predicado que permite a evolucao do conhecimento
+
+comprimento([],0).
+comprimento([X|P],N) :- comprimento(P,G) , 
+                        N is 1 + G.
+
+remove(T) :- retract(T).
+
+inserir(E) :- assert(E).
+inserir(E) :- retract(E),!,fail.
+
+evolucao(E) :- solucoes(I,+E::I,L),
+               inserir(E),
+               teste(L).
+
+teste([]).
+teste([X|Y]) :- X , teste(Y).
+
+solucoes(X,Y,Z) :- findall(X,Y,Z).
+
+retroceder(E) :- solucoes(I,+E::I,L),
+                 teste(L),
+                 remove(E).
 
 % --------------------------------------------------------------
 % Invariante Estrutural para utente:
 % (não permite a inserção de conhecimento repetido)
 
-+utente(I,N,Idd,M) :: (findall((I,N,Idd,M),(utente(I,N,Idd,M)),L),
-						comprimento(L,N),
-						N == 1).
++utente(I,Nome,IDD,M) :: (solucoes(I,(utente(I,_,_,_)),L),
+                        comprimento(L,N),
+                        N == 1).
 
 
 % --------------------------------------------------------------
 % Invariante Estrutural para cuidado_prestado:
 % (não permite a inserção de conhecimento repetido)
 
-+cuidado_prestado(Id,D,I,L) :: (findall((Id,D,I,L),(cuidado_prestado(Id,D,I,L)),L),
-								comprimento(L,N),
-								 N == 1).
-
++cuidado_prestado(ID,D,I,X) ::(solucoes(ID,(cuidado_prestado(ID,_,_,_)),L),
+                                comprimento(L,N),
+                                 N == 1).
 
 % --------------------------------------------------------------
 % Invariante Estrutural para cuidado_prestado:
-% (não permite a inserção de conhecimento repetido)
+% não permite a inserção de conhecimento repetido
 
-+ato_medico(D,IDut,IDser,C) :: (findall((D,IDut,IDser,C),(utente(D,IDut,IDser,C)),L),
-									comprimento(L,N),
-									N == 1).
++ato_medico(D,IDUT,IDS,C) :: (solucoes((D,IDUT,IDS),(utente(D,IDUT,IDS,_)),L),
+                              comprimento(L,N),
+                              N == 1).
 
+% ---------------------------------------------------------
+% Invariante que certifica a existência de um ID de utente e de um ID servico
 
-% --------------------------------------------------------------
-% Extensão do predicado de comprimento: L,Tam -> {V,F} 
-
-comprimento([],0).
-comprimento([_|Xs],N) :- comprimento(Xs,G) , N is 1 + G.
-
++ato_medico(D,IDUT,IDS,C) :: (utente(IDUT,_,_,_),
+                              servico(IDS,_,_,_)).
 
 % -------------------------------------------------------------
 % Identificar os utentes por critérios de seleção
@@ -93,7 +117,7 @@ comprimento([_|Xs],N) :- comprimento(Xs,G) , N is 1 + G.
 
 instCuidSaud([I]) :- cuidado_prestado(_,_,I,_).
 instCuidSaud([X|Xs]) :- cuidado_prestado(_,_,X,_) ,
-						instCuidSaud(Xs).
+                        instCuidSaud(Xs).
 
 % -------------------------------------------------------------
 % Identificar os cuidados prestados por instituição
@@ -101,17 +125,21 @@ instCuidSaud([X|Xs]) :- cuidado_prestado(_,_,X,_) ,
 
 cuidInst(I,[X]) :- cuidado_prestado(_,X,I,_).
 cuidInst(I,[X|Xs]) :- cuidado_prestado(_,X,I,_) , 
-					  cuidInst(I,Xs).
+                      cuidInst(I,Xs).
 
 % -------------------------------------------------------------
 % Identificar os cuidados prestados por serviço
 % Extensao do predicado cuidServ : I, L -> {V,F}
 
-
+cuidServ(S,[C]) :- cuidado_prestado(S,C,_,_).
+cuidServ(S,[C|Cs]) :- cuidado_prestado(S,C,_,_) , 
+                      cuidServ(S,Cs).
 
 % -------------------------------------------------------------
 % Identificar os utentes de uma Instituição
 % Extensao do predicado utentesInstituicao : I, L -> {V,F}
+
+
 
 % -------------------------------------------------------------
 % Identificar os utentes de um Serviço
@@ -157,84 +185,42 @@ cuidInst(I,[X|Xs]) :- cuidado_prestado(_,X,I,_) ,
 % Registar utentes
 % Extensao do predicado registaUtente : L -> {V,F}
 
-registaUtente(Id,N,I,M) :- evolucao(utente(Id,N,I,M)).
+regista(E) :- evolucao(E).
+
+registaUtentes(I,N,O,P) :- evolucao(utente(I,N,O,P)).  
 
 % -------------------------------------------------------------
 % Registar cuidados
 % Extensao do predicado registaCuidados : L -> {V,F}
 
-registaCuidados(Id,D,I,C) :- evolucao(cuidado_prestado(Id,D,I,C)).
+registaCuidados(ID,D,I,C) :- evolucao(cuidado_prestado(ID,D,I,C)).
 
 % -------------------------------------------------------------
 % Registar atos médicos
 % Extensao do predicado registaAtos : L -> {V,F}
 
-registaAtos(D,IdUt,IdServ,C) :- evolucao(ato_medico(D,IdUt,IdServ,C)).
+registaAtos(D,IDUT,IDS,C) :- evolucao(ato_medico(D,IDUT,IDS,C)).
 
 % -------------------------------------------------------------
 % Remover utentes
 % Extensao do predicado removeUtentes : L -> {V,F}
 
-removeUtentes(U) :- findall((U,N,I,M),utente(U,N,I,M), L),
-					retractUtentes(L).
 
-
-retractUtentes([Id,N,I,M]) :- retract(utente(Id,N,I,M)).
-retractUtentes([Id,N,I,M|Xs]) :- retract(utente(Id,N,I,M)) ,
-								 retractUtentes(Xs).
+removeUtentes(U) :- retroceder(utente(U,N,I,M)).
 
 
 % -------------------------------------------------------------
 % Remover cuidados
 % Extensao do predicado removeCuidados : L -> {V,F}
 
-removeCuidados(C) :- findall((C,D,I,Cid),cuidado_prestado(C,D,I,Cid), L),
-					 retractCuidados(L).
+removeCuidados(I) :- retroceder(cuidado_prestado(I,D,C,Cid)).
 
-
-retractCuidados([C,D,I,Cid]) :- retract(cuidado_prestado(C,D,I,Cid)).
-retractCuidados([C,D,I,Cid|Xs]) :- retract(cuidado_prestado(C,D,I,Cid)),
-								   retractCuidados(Xs).
 
 % -------------------------------------------------------------
 % Remover atos médicos
 % Extensao do predicado removeAtos : L -> {V,F}
 
-removeAtos(D,IdUt,IdServ,X) :- findall((D,IdUt,IdServ,X),ato_medico(D,IdUt,IdServ,X), L),
-					 		   retractAtos(L).
+removeAtos(D,IDUT,IDS) :- retroceder(ato_medico(D,IDUT,IDS,X)).
+                               
 
 
-retractAtos([D,IdUt,IdServ,X]) :- retract(ato_medico(D,IdUt,IdServ,X)).
-retractAtos([D,IdUt,IdServ,X|Xs]) :- retract(ato_medico(D,IdUt,IdServ,X)),
-									 retractAtos(Xs)
-
-
-
-
-
-
-
-% -------------------------------------------------------------
-% Extensao do meta-predicado nao: P -> {V,F}
-
-nao(P) :-
-  P, !, fail.
-nao(_).
-
-
-% -------------------------------------------------------------
-% Extensão do predicado que permite a evolucao do conhecimento
-
-
-evolucao(E) :- findall(I,+E::I,L),
-			   inserir(E),
-			   teste(L).
-
-% assert = adicionar informação
-% retract = remover informação
-
-inserir(E) :- assert(E).
-inserir(E) :- retract(E),!,fail.
-
-teste([]).
-teste([X|xs]) :- X , teste(Xs).
