@@ -111,14 +111,13 @@ retroceder(E) :- solucoes(I,+E::I,L),
 % Identificar os utentes por critérios de seleção
 % 
 
-utentesID(ID,R) :: solucoes((ID,X,Y,Z),utente(ID,X,Y,Z),R).
+utentesID(ID,R) :- solucoes((ID,X,Y,Z),utente(ID,X,Y,Z),R).
 
-utenteNome(NM,R) :: solucoes((X,NM,Y,Z),utente(X,NM,Y,Z),R).
+utenteNome(NM,R) :- solucoes((X,NM,Y,Z),utente(X,NM,Y,Z),R).
 
-utentesIdade(I,R) :: solucoes((X,Y,I,Z),utente(X,Y,I,Z),R).
+utentesIdade(I,R) :- solucoes((X,Y,I,Z),utente(X,Y,I,Z),R).
 
-utentesLugar(L,R) :: solucoes((X,Y,Z,L),utente(X,Y,Z,L),R).
-
+utentesLugar(L,R) :- solucoes((X,Y,Z,L),utente(X,Y,Z,L),R).
 
 
 % -------------------------------------------------------------
