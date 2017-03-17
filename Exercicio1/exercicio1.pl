@@ -35,9 +35,9 @@ utente( 5,'carolina',50,'braga' ).
 % --------------------------------------------------------------
 % Extensao do predicado cuidado_prestado: IdServ, Descrição, Instituição, Cidade -> { V, F }
 
-cuidado_prestado( 1,'Pediatria','Hospital','Braga' ).
-cuidado_prestado( 2,'geral','hospital','braga' ).
-cuidado_prestado( 3,'ortopedia','hospital','braga' ).
+cuidado_prestado( 1,'pediatria','hospital privado de braga','braga' ).
+cuidado_prestado( 2,'geral','hospital publico','braga' ).
+cuidado_prestado( 3,'ortopedia','hospital público','braga' ).
 cuidado_prestado( 4,'oftalmologia','hospital','braga' ).
 cuidado_prestado( 5,'oncologia','ipo','porto' ).
 
@@ -45,11 +45,11 @@ cuidado_prestado( 5,'oncologia','ipo','porto' ).
 % --------------------------------------------------------------
 % Extensao do predicado ato_medico:  Data, IdUt, IdServ, Custo -> { V, F }
 
-atos( '1-3-17',1,1,'25.5' ).
-atos( '25-2-17',1,1,'12' ).
-atos( '3-3-17',1,1,'45' ).
+atos( '1-3-17',1,5,'25.5' ).
+atos( '25-2-17',1,2,'12' ).
+atos( '3-3-17',3,1,'45' ).
 atos( '11-1-17',1,1,'2' ).
-atos( '12-2-17',1,1,'13.75' ).
+atos( '12-2-17',5,1,'13.75' ).
 
 % --------------------------------------------------------------
 % % Extensão do predicado que permite a evolucao do conhecimento
@@ -162,14 +162,28 @@ cuidCid(C,R) :- solucoes((C,S),cuidado_prestado(_,S,_,C),P),
 % Identificar os utentes de uma Instituição
 % Extensao do predicado utentesInstituicao : I, L -> {V,F}
 
+utentesInstituicao(U, R) :- solucoes(S, atos(_,U,S,_), P),
+                            retiraRep(P,K),
+                            servicoInstituicao(K,R).
+
+servicoInstituicao([S], R) :- solucoes(I, cuidado_prestado(S,_,I,_), R).                           
+servicoInstituicao([S|Ss], R) :- solucoes(I, cuidado_prestado(S,_,I,_), P),
+                                 servicoInstituicao(Ss,F),
+                                 concat(P,F,R).
 
 % -------------------------------------------------------------
 % Identificar os utentes de um Serviço
 % Extensao do predicado utentesServico : I, L -> {V,F}
 
+utentesServico(S,R) :- solucoes(U, atos(_,U,S,_), P),
+                       retiraRep(P,R).
+
 % -------------------------------------------------------------
 % Identificar os atos médicos realizados por utente
 % Extensao do predicado atoUte : I, L -> {V,F}
+
+atoUte(U,R) :- solucoes((X,Y,Z), atos(X,U,Y,Z), P),
+               retiraRep(P,R).
 
 % -------------------------------------------------------------
 % Identificar os atos médicos realizados por instituição
@@ -241,5 +255,4 @@ removeCuidados(I) :- retroceder(cuidado_prestado(I,D,C,Cid)).
 
 removeAtos(D,IDUT,IDS) :- retroceder(atos(D,IDUT,IDS,_)).
                                
-
 
