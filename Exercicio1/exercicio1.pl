@@ -25,11 +25,11 @@
 % --------------------------------------------------------------
 % Extensao do predicado utente : IdUt, Nome, Idade, Morada -> { V, F }
 
-utente( 1,carlos,35,braga ).
-utente( 2,joao,12,barcelos ).
-utente( 3,julio,89,porto ).
-utente( 4,ana,25,lisboa ).
-utente( 5,carolina,50,braga ).
+utente( 1,'carlos',35,'braga' ).
+utente( 2,'joao',12,'barcelos' ).
+utente( 3,'julio',89,'porto' ).
+utente( 4,'ana',25,'lisboa' ).
+utente( 5,'carolina',50,'braga' ).
 
 
 % --------------------------------------------------------------
@@ -110,6 +110,16 @@ retroceder(E) :- solucoes(I,+E::I,L),
 % -------------------------------------------------------------
 % Identificar os utentes por critérios de seleção
 % 
+
+utentesID(ID,R) :: solucoes((ID,X,Y,Z),utente(ID,X,Y,Z),R).
+
+utenteNome(NM,R) :: solucoes((X,NM,Y,Z),utente(X,NM,Y,Z),R).
+
+utentesIdade(I,R) :: solucoes((X,Y,I,Z),utente(X,Y,I,Z),R).
+
+utentesLugar(L,R) :: solucoes((X,Y,Z,L),utente(X,Y,Z,L),R).
+
+
 
 % -------------------------------------------------------------
 % Identificar as instituições prestadoras de cuidados de saúde
@@ -205,16 +215,13 @@ registaAtos(D,IDUT,IDS,C) :- evolucao(atos(D,IDUT,IDS,C)).
 % Remover utentes
 % Extensao do predicado removeUtentes : L -> {V,F}
 
-
 removeUtentes(U) :- retroceder(utente(U,N,I,M)).
-
 
 % -------------------------------------------------------------
 % Remover cuidados
 % Extensao do predicado removeCuidados : L -> {V,F}
 
 removeCuidados(I) :- retroceder(cuidado_prestado(I,D,C,Cid)).
-
 
 % -------------------------------------------------------------
 % Remover atos médicos
