@@ -1,4 +1,3 @@
-
 % Sistemas de Representação de Conhecimento e Raciocínio - Exercício 1
 % Grupo 1
 
@@ -25,19 +24,19 @@
 % Base de conhecimento com informação sobre cuidado prestado, ato médico , utente
 
 
-:- dynamic(utente/4).
+:- dynamic(utente/6).
 :- dynamic(cuidado_prestado/4).
 :- dynamic(atos/4).
 
 
 % --------------------------------------------------------------
-% Extensao do predicado utente : IdUt, Nome, Idade, Morada -> { V, F }
+% Extensao do predicado utente : IdUt, Nome, Idade, Rua, Cidade, Contacto-> { V, F }
 
-utente( 1,'Carlos',35,'Braga' ).
-utente( 2,'Joao',12,'Guimaraes' ).
-utente( 3,'Julio',89,'Guimaraes' ).
-utente( 4,'Ana',25,'Lisboa' ).
-utente( 5,'Carolina',50,'Braga' ).
+utente( 1,'Carlos',35,'Rua D.Pedro V','Braga','253456789' ).
+utente( 2,'Joao',12,'Rua da Ramada','Guimaraes','929876543' ).
+utente( 3,'Julio',89,'Rua das Victorias','Guimaraes','935436789' ).
+utente( 4,'Ana',25,'Rua Conde Almoster','Lisboa','913456789' ).
+utente( 5,'Carolina',50,'Rua do Caires','Braga','253987654' ).
 
 
 % --------------------------------------------------------------
@@ -94,7 +93,7 @@ retroceder(E) :- solucoes(I,+E::I,L),
 % Invariante Estrutural para utente:
 % (não permite a inserção de conhecimento repetido)
 
-+utente(I,Nome,IDD,M) :: (solucoes(I,(utente(I,_,_,_)),L),
++utente(I,Nome,IDD,RU,CDD,CNT) :: (solucoes(I,(utente(I,_,_,_,_,_)),L),
                         comprimento(L,N),
                         N == 1).
 
@@ -118,19 +117,23 @@ retroceder(E) :- solucoes(I,+E::I,L),
 % ---------------------------------------------------------
 % Invariante que certifica a existência de um ID de utente e de um ID servico
 
-+atos(D,IDUT,IDS,C) :: (utente(IDUT,_,_,_),
++atos(D,IDUT,IDS,C) :: (utente(IDUT,_,_,_,_,_),
                               cuidado_prestado(IDS,_,_,_)).
 
 % -------------------------------------------------------------
 % Identificar os utentes por critérios de seleção 
 
-utenteID(ID,R) :- solucoes((ID,X,Y,Z),utente(ID,X,Y,Z),R).
+utenteID(ID,R) :- solucoes((ID,X,Y,Z,W,K),utente(ID,X,Y,Z,W,K),R).
 
-utenteNome(NM,R) :- solucoes((X,NM,Y,Z),utente(X,NM,Y,Z),R).
+utenteNome(NM,R) :- solucoes((X,NM,Y,Z,W,K),utente(X,NM,Y,Z,W,K),R).
 
-utenteIdade(I,R) :- solucoes((X,Y,I,Z),utente(X,Y,I,Z),R).
+utenteIdade(I,R) :- solucoes((X,Y,I,Z,W,K),utente(X,Y,I,Z,W,K),R).
 
-utenteLugar(L,R) :- solucoes((X,Y,Z,L),utente(X,Y,Z,L),R).
+utenteRua(RU,R) :- solucoes((X,Y,Z,RU,W,K),utente(X,Y,Z,RU,W,K),R).
+
+utenteCidade(CDD,R) :- solucoes((X,Y,Z,W,CDD,K),utente(X,Y,Z,W,CDD,K),R).
+
+utenteContacto(CNT,R) :- solucoes((X,Y,Z,W,K,CNT),utente(X,Y,Z,W,K,CNT),R).
 
 % ---------------------------------------------------------
 % Predicado que junta duas listas numa nova lista
@@ -175,7 +178,7 @@ cuidCid(C,R) :- solucoes((C,S),cuidado_prestado(_,S,_,C),P),
 % Identificar os utentes de uma Instituição
 % Extensao do predicado utentesInstituicao : I, L -> {V,F}
 
-utentesInstituicao(I,R) :- solucoes(S, cuidado_prestado(S,_,I,_), P),
+utentesInstituicao(I,R) :- solucoes(S, cuidado_prestado(S,_,I,_,_), P),
                            retiraRep(P,F),
                            utServ(F,R).
                            
@@ -279,7 +282,7 @@ custoData(D,R) :- solucoes((D,X,Y,Z), atos(D,X,Y,Z), F),
 % Registar utentes
 % Extensao do predicado registaUtentes : L,N,O,P -> {V,F}
 
-registaUtentes(I,N,O,P) :- evolucao(utente(I,N,O,P)).  
+registaUtentes(ID,NM,I,RU,CDD,CNT) :- evolucao(utente(ID,NM,I,RU,CDD,CNT)).  
 
 % -------------------------------------------------------------
 % Registar cuidados
@@ -297,7 +300,7 @@ registaAtos(D,IDUT,IDS,C) :- evolucao(atos(D,IDUT,IDS,C)).
 % Remover utentes
 % Extensao do predicado removeUtentes : L -> {V,F}
 
-removeUtentes(U) :- retroceder(utente(U,N,I,M)).
+removeUtentes(U) :- retroceder(utente(U,N,I,RU,CDD,CNT)).
 
 % -------------------------------------------------------------
 % Remover cuidados
@@ -325,7 +328,7 @@ numeroServicos(I,R) :- solucoes(S, cuidado_prestado(S,_,I,_), P),
 % Numero de Utentes
 % Extensão do predicado numeroUtentes : I -> {V,F}
 
-numeroUtentes(R) :- solucoes(U,utente(U,_,_,_),L),
+numeroUtentes(R) :- solucoes(U,utente(U,_,_,_,_,_),L),
                     comprimento(L,T),
                     R is T.
 
