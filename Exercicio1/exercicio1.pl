@@ -25,9 +25,9 @@
 % Base de conhecimento com informação sobre cuidado prestado, ato médico , utente
 
 
-:- dynamic utente/4 .
-:- dynamic cuidado_prestado/4 .
-:- dynamic atos/4 .
+:- dynamic(utente/4).
+:- dynamic(cuidado_prestado/4).
+:- dynamic(atos/4).
 
 
 % --------------------------------------------------------------
