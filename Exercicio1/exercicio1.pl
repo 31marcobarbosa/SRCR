@@ -26,7 +26,7 @@
 
 :- dynamic(utente/6).
 :- dynamic(cuidado_prestado/4).
-:- dynamic(atos/4).
+:- dynamic(atos/6).
 
 
 % --------------------------------------------------------------
@@ -37,26 +37,31 @@ utente( 2,'Joao',12,'Rua da Ramada','Guimaraes','929876543' ).
 utente( 3,'Julio',89,'Rua das Victorias','Guimaraes','935436789' ).
 utente( 4,'Ana',25,'Rua Conde Almoster','Lisboa','913456789' ).
 utente( 5,'Carolina',50,'Rua do Caires','Braga','253987654' ).
+utente( 6,'Joana',23,'Av.da Boavista','Porto','961234567' ).
 
 
 % --------------------------------------------------------------
 % Extensao do predicado cuidado_prestado: IdServ, Descrição, Instituição, Cidade -> { V, F }
 
-cuidado_prestado( 1,'Pediatria','Hospital privado de braga','Braga' ).
+cuidado_prestado( 1,'Pediatria','Hospital Privado de Braga','Braga' ).
 cuidado_prestado( 2,'Geral','Hospital publico','Braga' ).
 cuidado_prestado( 3,'Ortopedia','Hospital público','Braga' ).
 cuidado_prestado( 4,'Oftalmologia','Hospital','Braga' ).
-cuidado_prestado( 5,'Oncologia','Ipo','Porto' ).
+cuidado_prestado( 5,'Oncologia','IPO','Porto' ).
+cuidado_prestado( 6, 'Urgência', 'Hospital de Santa Maria', 'Porto' ).
+cuidado_prestado( 7, 'Urgência', 'Hospital da Luz', 'Guimaraes' ).
 
 
 % --------------------------------------------------------------
-% Extensao do predicado ato_medico:  Data, IdUt, IdServ, Custo -> { V, F }
+% Extensao do predicado ato_medico:  Data, IdUt, IdServ, CorPulseira, Médico, Custo -> { V, F }
 
-atos( '1-3-17', 1, 5, 25.5 ).
-atos( '25-2-17', 1, 2, 12 ).
-atos( '3-3-17', 3, 1, 45 ).
-atos( '11-1-17', 1, 1, 2 ).
-atos( '12-2-17', 5, 1, 13.75 ).
+atos( '01-03-17', 1, 6, 'Verde', 'Dra.Luisa', 25.5 ).
+atos( '25-02-17', 1, 2, 'Sem_pulseira', 'Dr.Barroso', 12 ).
+atos( '03-03-17', 3, 1, 'Sem_pulseira', 'Dra.Candida', 45 ).
+atos( '11-01-17', 1, 1, 'Sem_pulseira', 'Dr.Pardal', 2 ).
+atos( '12-02-17', 5, 1, 'Sem_pulseira', 'Dra.Teresa', 13.75 ).
+atos( '24-12-17', 2, 7, 'Amarela', 'Dr.Pedro Martins', 11 ).
+atos( '01-01-17', 6, 6, 'Laranja', 'Dr.Reveillon', 16 ).
 
 
 
@@ -110,14 +115,14 @@ retroceder(E) :- solucoes(I,+E::I,L),
 % Invariante Estrutural para cuidado_prestado:
 % não permite a inserção de conhecimento repetido
 
-+atos(D,IDUT,IDS,C) :: (solucoes((D,IDUT,IDS),(atos(D,IDUT,IDS,_)),L),
++atos(D,IDUT,IDS,CP,MDC,C) :: (solucoes((D,IDUT,IDS),(atos(D,IDUT,IDS,_,_,_)),L),
                               comprimento(L,N),
                               N == 1).
 
 % ---------------------------------------------------------
 % Invariante que certifica a existência de um ID de utente e de um ID servico
 
-+atos(D,IDUT,IDS,C) :: (utente(IDUT,_,_,_,_,_),
++atos(D,IDUT,IDS,CP,MDC,C) :: (utente(IDUT,_,_,_,_,_),
                               cuidado_prestado(IDS,_,_,_)).
 
 % -------------------------------------------------------------
@@ -171,14 +176,14 @@ cuidInst(I,R) :- solucoes(C,cuidado_prestado(_,C,I,_),R).
 % Identificar os cuidados prestados por cidade
 % Extensao do predicado cuidCid : I, L -> {V,F}
 
-cuidCid(C,R) :- solucoes((C,S),cuidado_prestado(_,S,_,C),P),
+cuidCid(C,R) :- solucoes(S,cuidado_prestado(_,S,_,C),P),
                 retiraRep(P,R).
 
 % -------------------------------------------------------------
 % Identificar os utentes de uma Instituição
 % Extensao do predicado utentesInstituicao : I, L -> {V,F}
 
-utentesInstituicao(I,R) :- solucoes(S, cuidado_prestado(S,_,I,_,_), P),
+utentesInstituicao(I,R) :- solucoes(S, cuidado_prestado(S,_,I,_), P),
                            retiraRep(P,F),
                            utServ(F,R).
                            
@@ -191,7 +196,7 @@ utServ([S|Ss],R) :- utentesServico(S,F),
 % Identificar os utentes de um Serviço
 % Extensao do predicado utentesServico : I, L -> {V,F}
 
-utentesServico(S,R) :- solucoes(U, atos(_,U,S,_), P),
+utentesServico(S,R) :- solucoes(U, atos(_,U,S,_,_,_), P),
                        retiraRep(P,F),
                        idUt(F,R).
 
@@ -204,7 +209,7 @@ idUt([U|Us],R) :- utenteID(U,F),
 % Identificar os atos médicos realizados por utente
 % Extensao do predicado atoUte : I, L -> {V,F}
 
-atoUte(U,R) :- solucoes((X,U,Y,Z), atos(X,U,Y,Z), P),
+atoUte(U,R) :- solucoes((X,U,Y,Z,W,Q), atos(X,U,Y,Z,W,Q), P),
                retiraRep(P,R).
 
 % -------------------------------------------------------------
@@ -224,7 +229,7 @@ servAto([S|Ss],R) :- atoServ(S,F),
 % Identificar os atos médicos realizados por serviço
 % Extensao do predicado atoServ : I, L -> {V,F}
 
-atoServ(S,R) :- solucoes((X,Y,S,Z), atos(X,Y,S,Z), R).
+atoServ(S,R) :- solucoes((X,Y,S,Z,W,Q), atos(X,Y,S,Z,W,Q), R).
 
 % -------------------------------------------------------------
 % Determinar todas as instituições a que um utente recorreu 
@@ -243,7 +248,7 @@ servicosInstituicao([S|Ss],R) :-  solucoes(I, cuidado_prestado(S,_,I,_), P),
 % Determinar todas os serviços a que um utente recorreu 
 % Extensao do predicado nServUte : I, L -> {V,F}
 
-nServUte(U,R) :- solucoes(S, atos(_,U,S,_), P),
+nServUte(U,R) :- solucoes(S, atos(_,U,S,_,_,_), P),
                  retiraRep(P,R).
 
 % -------------------------------------------------------------
@@ -253,8 +258,8 @@ nServUte(U,R) :- solucoes(S, atos(_,U,S,_), P),
 custoUte(U,R) :- atoUte(U,F),
                  atoCusto(F,R).
 
-atoCusto([(_,_,_,C)],R) :- R is C.
-atoCusto([(_,_,_,C)|Cs],R) :- atoCusto(Cs,F),
+atoCusto([(_,_,_,_,_,C)],R) :- R is C.
+atoCusto([(_,_,_,_,_,C)|Cs],R) :- atoCusto(Cs,F),
                               R is C+F.
 
 % -------------------------------------------------------------
@@ -275,7 +280,7 @@ custoInst(I,R) :- atoInst(I,F),
 % Calcular o custo total dos atos médicos por data 
 % Extensao do predicado custoData : I, L -> {V,F}
 
-custoData(D,R) :- solucoes((D,X,Y,Z), atos(D,X,Y,Z), F),
+custoData(D,R) :- solucoes((D,X,Y,Z,W,Q), atos(D,X,Y,Z,W,Q), F),
                   atoCusto(F,R).
 
 % -------------------------------------------------------------
@@ -294,13 +299,19 @@ registaCuidados(ID,D,I,C) :- evolucao(cuidado_prestado(ID,D,I,C)).
 % Registar atos médicos
 % Extensao do predicado registaAtos : L,M,N,O -> {V,F}
 
-registaAtos(D,IDUT,IDS,C) :- evolucao(atos(D,IDUT,IDS,C)).
+registaAtos(D,IDUT,IDS,CP,MDC,C) :- evolucao(atos(D,IDUT,IDS,CP,MDC,C)).
 
 % -------------------------------------------------------------
 % Remover utentes
 % Extensao do predicado removeUtentes : L -> {V,F}
 
-removeUtentes(U) :- retroceder(utente(U,N,I,RU,CDD,CNT)).
+removeUtentes(U) :- solucoes((D,U,IDS),atos(D,U,IDS,_,_,_),R),
+					removeTodosAtos(R),
+					retroceder(utente(U,N,I,RU,CDD,CNT)).
+
+removeTodosAtos([(D,IDUT,IDS)]) :- removeAtos(D,IDUT,IDS).
+removeTodosAtos([(D,IDUT,IDS)|As]) :- removeAtos(D,IDUT,IDS),
+										    removeTodosAtos(As).
 
 % -------------------------------------------------------------
 % Remover cuidados
@@ -312,7 +323,7 @@ removeCuidados(I) :- retroceder(cuidado_prestado(I,D,C,Cid)).
 % Remover atos médicos
 % Extensao do predicado removeAtos : L -> {V,F}
 
-removeAtos(D,IDUT,IDS) :- retroceder(atos(D,IDUT,IDS,_)).
+removeAtos(D,IDUT,IDS) :- retroceder(atos(D,IDUT,IDS,_,_,_)).
                                
 
 % ---------------------------------------------------------
@@ -335,6 +346,6 @@ numeroUtentes(R) :- solucoes(U,utente(U,_,_,_,_,_),L),
 % Numero de Atos
 % Extensão do predicado numeroAtos : I -> {V,F}
 
-numeroAtos(R) :- solucoes(A,atos(A,_,_,_),L),
+numeroAtos(R) :- solucoes(A,atos(A,_,_,_,_,_),L),
                  comprimento(L,T),
                  R is T.
