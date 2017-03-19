@@ -86,7 +86,7 @@ atos( '14-02-17', 14, 7, 'Amarela', 'Dra.Mafalda', 23).
 atos( '30-01-17', 7, 5, 'Sem_pulseira', 'Dr.Quimio', 10).
 atos( '01-02-17', 1, 6, 'Verde', 'Dra.Luisa', 25.5).
 atos( '01-03-17', 10, 6, 'Verde', 'Dra.Luisa', 25.5).
-atos( '10-03-17', 12, 11, ' Sem_pulseira', 'Dr.Luis', 12.50).
+atos( '10-03-17', 12, 11, 'Sem_pulseira', 'Dr.Luis', 12.50).
 
 
 
@@ -394,20 +394,22 @@ corPuls(R) :- solucoes(C,atos(_,_,_,C,_,_),T),
               retiraRep(T,R).
 
 
+
 % Ato Médico Mais Caro Registado até ao Momento
 % Extensão do predicado msCro : I -> {V,F}
 
-%msCro(R) :- solucoes(Q,atos(_,_,_,_,_,Q),T),
- %           maxLst(T,C),
-  %          solucoes(F,(atos(_,_,F,_,_,C)),L),
-  %          findCuid(L,R).
+msCro(R) :- solucoes(Q,atos(_,_,_,_,_,Q),T),
+            maxLst(T,C),
+            solucoes(F,(atos(_,_,F,_,_,C)),L),
+            findCuid(L,R).
              
-%findCuid(X,R) :- solucoes((X,D,I,C),cuidado_prestado(X,D,I,C),R).
+findCuid(X,R) :- solucoes((X,D,I,C),cuidado_prestado(X,D,I,C),R).
 
-%maxLst([],0).
-%maxLst([H],H).
-%maxLst([H|T],H) :- maxLst(T,REST), H > REST.
-%maxLst([H|T],REST) :- maxLst(T,REST), REST >= H. 
+maxLst([],0).
+maxLst([H],H).
+maxLst([H|T],H) :- maxLst(T,REST), H > REST.
+maxLst([H|T],REST) :- maxLst(T,REST), REST >= H. 
+
 
 
 
