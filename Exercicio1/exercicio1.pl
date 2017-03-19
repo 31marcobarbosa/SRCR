@@ -396,16 +396,17 @@ corPuls(C,R) :- solucoes(C,atos(_,_,_,C,_,_),T),
 % Extensão do predicado msCro : I -> {V,F}
 
 msCro(R) :- solucoes(Q,atos(_,_,_,_,_,Q),T),
-            maxLst(T,0,C),
-            solucoes((X,U,Y,Z,W,C), atos(X,U,Y,Z,W,C),R).
+            maxLst(T,C),
+            solucoes(F,atos(_,_,F,_,_,C),[L|_]),
+            findCuid(L,R).
+             
+findCuid(X,R) :- solucoes((D,I,C),cuidado_prestado(X,D,I,C),R).
 
-maxLst([C],K,R) :- maior(C,K,X),
-                   R is X.
-maxLst([C|Cs],K,R) :- maior(C,K,X),
-                      maxLst(Cs,X,R).
+maxLst([],0).
+maxLst([H],H).
+maxLst([H|T],H) :- maxLst(T,REST), H > REST.
+maxLst([H|T],REST) :- maxLst(T,REST), REST >= H. 
 
-maior(X,Y,X) :- X >= Y.
-maior(X,Y,Y) :- Y > X.
 
 % Ordenar os Atos Médicos Registados até ao Momento
 % Extensão do predicado ordCst : I -> {V,F}
