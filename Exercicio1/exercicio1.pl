@@ -389,3 +389,31 @@ maxList([],0).
 maxList([H],H).
 maxList([H|T],H) :- maxList(T,REST), H > REST.
 maxList([H|T],REST) :- maxList(T,REST), REST >= H.  
+
+
+
+ordCst(R) :- solucoes(Q, atos(_,_,_,_,_,Q), T),
+             isort(T,R). 
+
+insert(X,[],[X]).
+insert(X,[H|T],[X,H|T]) :- X =< H.
+insert(X,[H|T],[H|NT]) :- X > H, insert(X, T, NT).
+
+isort([X], [X]).
+isort([H|T], OL) :- isort(T, OT), insert(H, OT, OL).
+
+
+% Médicos de uma dada Instituição
+% Extensão do predicado medInst : I, R -> {V,F}
+medInst(I,R) :- solucoes(ID,(cuidado_prestado(ID,_,I,_)),L), 
+                getDoc(L,R).
+
+
+getDoc([],[]).
+getDoc([X|XS],RS) :- solucoes(M,atos(_,_,X,_,M,_),MS),
+                     getDoc(XS,TS),
+                     append(MS,TS,F),
+                     retiraRep(F,RS).    
+
+append([],L,L). 
+append([H|T],L2,[H|L3])  :-  append(T,L2,L3).
