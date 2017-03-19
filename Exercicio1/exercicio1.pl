@@ -378,11 +378,10 @@ numeroAtos(R) :- solucoes(A,atos(A,_,_,_,_,_),L),
                  R is T.
 
 
-% Numero de Cores das Pulseira
-% Extensão do predicado nCorPul : I -> {V,F}
+% Numero de Cores de uma dada Pulseira
+% Extensão do predicado nCorPul : I , L -> {V,F}
 
-nCorPul(R) :- solucoes(C,atos(_,_,_,C,_,_),X),
-              retiraRep(X,L),
+nCorPul(C,R) :- solucoes(C,atos(_,_,_,C,_,_),L),
               comprimento(L,T),
               R is T.
 
@@ -390,7 +389,7 @@ nCorPul(R) :- solucoes(C,atos(_,_,_,C,_,_),X),
 % Cores das Pulseira
 % Extensão do predicado corPuls : I -> {V,F}
 
-corPuls(R) :- solucoes(C,atos(_,_,_,C,_,_),T),
+corPuls(C,R) :- solucoes(C,atos(_,_,_,C,_,_),T),
               retiraRep(T,R).
 
 % Ato Médico Mais Caro Registado até ao Momento
