@@ -32,36 +32,43 @@
 % --------------------------------------------------------------
 % Extensao do predicado utente : IdUt, Nome, Idade, Rua, Cidade, Contacto-> { V, F }
 
-utente( 1,'Carlos',35,'Rua D.Pedro V','Braga','253456789' ).
-utente( 2,'Joao',12,'Rua da Ramada','Guimaraes','929876543' ).
-utente( 3,'Julio',89,'Rua das Victorias','Guimaraes','935436789' ).
-utente( 4,'Ana',25,'Rua Conde Almoster','Lisboa','913456789' ).
-utente( 5,'Carolina',50,'Rua do Caires','Braga','253987654' ).
-utente( 6,'Joana',23,'Av.da Boavista','Porto','961234567' ).
+utente( 1,'Carlos',35,'Rua D.Pedro V','Braga','253456789').
+utente( 2,'Joao',12,'Rua da Ramada','Guimaraes','929876543').
+utente( 3,'Julio',89,'Rua das Victorias','Guimaraes','935436789').
+utente( 4,'Ana',25,'Rua Conde Almoster','Lisboa','913456789').
+utente( 5,'Carolina',50,'Rua do Caires','Braga','253987654').
+utente( 6,'Joana',23,'Av.da Boavista','Porto','961234567').
+utente( 7,'Fernando',65,'Rua do Loureiro','Viana do Castelo','966668569').
+utente( 8,'Rute',18,'Avenida da Liberdade','Braga','916386423').
+utente( 9,'Maciel',45,'Rua das Flores','Porto','935731290').
 
 
 % --------------------------------------------------------------
 % Extensao do predicado cuidado_prestado: IdServ, Descrição, Instituição, Cidade -> { V, F }
 
-cuidado_prestado( 1,'Pediatria','Hospital Privado de Braga','Braga' ).
-cuidado_prestado( 2,'Geral','Hospital publico','Braga' ).
-cuidado_prestado( 3,'Ortopedia','Hospital público','Braga' ).
-cuidado_prestado( 4,'Oftalmologia','Hospital','Braga' ).
-cuidado_prestado( 5,'Oncologia','IPO','Porto' ).
-cuidado_prestado( 6, 'Urgência', 'Hospital de Santa Maria', 'Porto' ).
-cuidado_prestado( 7, 'Urgência', 'Hospital da Luz', 'Guimaraes' ).
+cuidado_prestado( 1,'Pediatria','Hospital Privado de Braga','Braga').
+cuidado_prestado( 2,'Cardiologia','Hospital de Braga','Braga').
+cuidado_prestado( 3,'Ortopedia','Hospital de Braga','Braga').
+cuidado_prestado( 4,'Oftalmologia','Hospital de Braga','Braga').
+cuidado_prestado( 5,'Oncologia','IPO','Porto').
+cuidado_prestado( 6,'Urgência','Hospital de Santa Maria','Porto').
+cuidado_prestado( 7,'Urgência','Hospital da Luz','Guimaraes').
+cuidado_prestado( 8,'Neurologia','Centro Hospitalar Sao Joao','Porto').
+cuidado_prestado( 9,'Ortopedia','Hospital da Luz','Guimaraes').
 
 
 % --------------------------------------------------------------
 % Extensao do predicado ato_medico:  Data, IdUt, IdServ, CorPulseira, Médico, Custo -> { V, F }
 
-atos( '01-03-17', 1, 6, 'Verde', 'Dra.Luisa', 25.5 ).
-atos( '25-02-17', 1, 2, 'Sem_pulseira', 'Dr.Barroso', 12 ).
-atos( '03-03-17', 3, 1, 'Sem_pulseira', 'Dra.Candida', 45 ).
-atos( '11-01-17', 1, 1, 'Sem_pulseira', 'Dr.Pardal', 2 ).
-atos( '12-02-17', 5, 1, 'Sem_pulseira', 'Dra.Teresa', 13.75 ).
-atos( '24-12-17', 2, 7, 'Amarela', 'Dr.Pedro Martins', 11 ).
-atos( '01-01-17', 6, 6, 'Laranja', 'Dr.Reveillon', 16 ).
+atos( '01-03-17', 1, 6, 'Verde', 'Dra.Luisa', 25.5).
+atos( '25-02-17', 1, 2, 'Sem_pulseira', 'Dr.Barroso', 12).
+atos( '03-03-17', 3, 1, 'Sem_pulseira', 'Dra.Candida', 45).
+atos( '11-01-17', 1, 1, 'Sem_pulseira', 'Dr.Pardal', 2).
+atos( '12-02-17', 5, 1, 'Sem_pulseira', 'Dra.Teresa', 13.75).
+atos( '27-01-17', 2, 7, 'Amarela', 'Dr.Pedro Martins', 11).
+atos( '01-01-17', 6, 6, 'Laranja', 'Dr.Reveillon', 16).
+atos( '24-02-17', 8, 4, 'Amarela', 'Dr.Mourao', 4).
+atos( '08-03-17', 9, 8, 'Vermelha', 'Dr.Lima', 50).
 
 
 
@@ -309,6 +316,7 @@ removeUtentes(U) :- solucoes((D,U,IDS),atos(D,U,IDS,_,_,_),R),
 					removeTodosAtos(R),
 					retroceder(utente(U,N,I,RU,CDD,CNT)).
 
+removeTodosAtos([]).
 removeTodosAtos([(D,IDUT,IDS)]) :- removeAtos(D,IDUT,IDS).
 removeTodosAtos([(D,IDUT,IDS)|As]) :- removeAtos(D,IDUT,IDS),
 										    removeTodosAtos(As).
@@ -349,3 +357,21 @@ numeroUtentes(R) :- solucoes(U,utente(U,_,_,_,_,_),L),
 numeroAtos(R) :- solucoes(A,atos(A,_,_,_,_,_),L),
                  comprimento(L,T),
                  R is T.
+
+
+% Numero de Cores das Pulseira
+% Extensão do predicado nCorPul : I -> {V,F}
+
+nCorPul(R) :- solucoes(C,atos(_,_,_,C,_,_),X),
+              retiraRep(X,L),
+              comprimento(L,T),
+              R is T.
+
+
+% Cores das Pulseira
+% Extensão do predicado corPuls : I -> {V,F}
+
+corPuls(R) :- solucoes(C,atos(_,_,_,C,_,_),T),
+              retiraRep(T,R).
+
+
