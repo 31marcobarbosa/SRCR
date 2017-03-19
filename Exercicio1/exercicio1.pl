@@ -401,7 +401,7 @@ medInst(I,R) :- solucoes(ID,(cuidado_prestado(ID,_,I,_)),L),
 getDoc([],[]).
 getDoc([X|XS],RS) :- getDoc(XS,TS),
                      solucoes(M,atos(_,_,X,_,M,_),MS),
-                     append(MS,TS,RS).    
+                     concat(MS,TS,RS).    
 
 % Média dos custos dos atos
 % Extensão do precicado mediaCusto : I, R -> {V,F}
