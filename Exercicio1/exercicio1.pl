@@ -37,14 +37,14 @@ utente( 2,'Joao',12,'Rua da Ramada','Guimaraes','929876543').
 utente( 3,'Julio',89,'Rua das Victorias','Guimaraes','935436789').
 utente( 4,'Ana',25,'Rua Conde Almoster','Lisboa','913456789').
 utente( 5,'Carolina',50,'Rua do Caires','Braga','253987654').
-utente( 6,'Joana',23,'Av.da Boavista','Porto','961234567').
+utente( 6,'Joana',26,'Av.da Boavista','Porto','961234567').
 utente( 7,'Fernando',65,'Rua do Loureiro','Viana do Castelo','966668569').
 utente( 8,'Rute',18,'Av. da Liberdade','Braga','916386423').
 utente( 9,'Maciel',45,'Rua das Flores','Porto','935731290').
-utente( 10,'Filipa',32,'Rua Padre Vitorino','Faro','289347681').
+utente( 10,'Filipa',35,'Rua Padre Vitorino','Faro','289347681').
 utente( 11,'Mauro',76,'Rua Gil Vicente','Montalegre','276327904').
 utente( 12,'Laura',90,'Rua Fernando Mendes','Leiria','244000045').
-utente( 13,'Jaime',48,'Av. Norton Matos','Barcelos','914768180').
+utente( 13,'Jaime',50,'Av. Norton Matos','Barcelos','914768180').
 utente( 14,'Lourenço',26,'Rua da Boavista','Guimaraes','926306127').
 utente( 15,'Tiago',16,'Rua Monsenhor de Melo','Vilamoura','936150873').
 
