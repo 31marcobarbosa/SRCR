@@ -39,8 +39,14 @@ utente( 4,'Ana',25,'Rua Conde Almoster','Lisboa','913456789').
 utente( 5,'Carolina',50,'Rua do Caires','Braga','253987654').
 utente( 6,'Joana',23,'Av.da Boavista','Porto','961234567').
 utente( 7,'Fernando',65,'Rua do Loureiro','Viana do Castelo','966668569').
-utente( 8,'Rute',18,'Avenida da Liberdade','Braga','916386423').
+utente( 8,'Rute',18,'Av. da Liberdade','Braga','916386423').
 utente( 9,'Maciel',45,'Rua das Flores','Porto','935731290').
+utente( 10,'Filipa',32,'Rua Padre Vitorino','Faro','289347681').
+utente( 11,'Mauro',76,'Rua Gil Vicente','Montalegre','276327904').
+utente( 12,'Laura',90,'Rua Fernando Mendes','Leiria','244000045').
+utente( 13,'Jaime',48,'Av. Norton Matos','Barcelos','914768180').
+utente( 14,'Lourenço',26,'Rua da Boavista','Guimaraes','926306127').
+utente( 15,'Tiago',16,'Rua Monsenhor de Melo','Vilamoura','936150873').
 
 
 % --------------------------------------------------------------
@@ -55,23 +61,33 @@ cuidado_prestado( 6,'Urgência','Hospital de Santa Maria','Porto').
 cuidado_prestado( 7,'Urgência','Hospital da Luz','Guimaraes').
 cuidado_prestado( 8,'Neurologia','Centro Hospitalar Sao Joao','Porto').
 cuidado_prestado( 9,'Urgência','Hospital de Braga','Braga').
+cuidado_prestado( 10,'Urgência','Hospital Lusiadas','Faro').
+cuidado_prestado( 11,'Otorrinolaringologia','Hospital de Vila Real','Vila Real').
+
 
 
 % --------------------------------------------------------------
 % Extensao do predicado ato_medico:  Data, IdUt, IdServ, CorPulseira, Médico, Custo -> { V, F }
 
+atos( '02-01-17', 15, 10, 'Verde', 'Dra.Sara', 17.5).
 atos( '24-02-17', 8, 4, 'Sem_pulseira', 'Dr.Mourao', 4).
 atos( '25-02-17', 1, 2, 'Sem_pulseira', 'Dr.Barroso', 12).
+atos( '28-01-17', 13, 9, 'Laranja', 'Dr.Tomas', 5).
 atos( '10-02-17', 4, 3, 'Sem_pulseira', 'Dr.Falcão', 20).
 atos( '19-03-17', 3, 9, 'Amarela', 'Dr.Bones', 50).
 atos( '11-01-17', 1, 1, 'Sem_pulseira', 'Dr.Pardal', 2).
 atos( '12-02-17', 5, 8, 'Sem_pulseira', 'Dra.Teresa', 13.75).
+atos( '20-03-17', 11, 11, 'Sem_pulseira', 'Dra.Marta', 13).
 atos( '27-01-17', 2, 7, 'Amarela', 'Dr.Pedro Martins', 11).
 atos( '01-01-17', 6, 6, 'Laranja', 'Dr.Reveillon', 16).
 atos( '03-03-17', 3, 1, 'Sem_pulseira', 'Dra.Candida', 45).
 atos( '08-03-17', 9, 9, 'Vermelha', 'Dr.Lima', 50).
+atos( '14-02-17', 14, 7, 'Amarela', 'Dra.Mafalda', 23).
 atos( '30-01-17', 7, 5, 'Sem_pulseira', 'Dr.Quimio', 10).
-atos( '01-03-17', 1, 6, 'Verde', 'Dra.Luisa', 25.5).
+atos( '01-02-17', 1, 6, 'Verde', 'Dra.Luisa', 25.5).
+atos( '01-03-17', 10, 6, 'Verde', 'Dra.Luisa', 25.5).
+atos( '10-03-17', 12, 11, ' Sem_pulseira', 'Dr.Luis', 12.50).
+
 
 
 
@@ -379,43 +395,45 @@ corPuls(R) :- solucoes(C,atos(_,_,_,C,_,_),T),
 
 
 % Ato Médico Mais Caro Registado até ao Momento
-% Extensão do predicado maisCro : I -> {V,F}
+% Extensão do predicado msCro : I -> {V,F}
 
-msCaro(R) :- solucoes(Q, atos(_,_,_,_,_,Q), T),
-             maxList(T,R). 
+%msCro(R) :- solucoes(Q,atos(_,_,_,_,_,Q),T),
+ %           maxLst(T,C),
+  %          solucoes(F,(atos(_,_,F,_,_,C)),L),
+  %          findCuid(L,R).
+             
+%findCuid(X,R) :- solucoes((X,D,I,C),cuidado_prestado(X,D,I,C),R).
+
+%maxLst([],0).
+%maxLst([H],H).
+%maxLst([H|T],H) :- maxLst(T,REST), H > REST.
+%maxLst([H|T],REST) :- maxLst(T,REST), REST >= H. 
 
 
-maxList([],0).
-maxList([H],H).
-maxList([H|T],H) :- maxList(T,REST), H > REST.
-maxList([H|T],REST) :- maxList(T,REST), REST >= H.  
 
-<<<<<<< HEAD
+% Ordenar os Atos Médicos Registados até ao Momento
+% Extensão do predicado ordCst : I -> {V,F}
+
+ordCst(R) :- solucoes(Q,atos(_,_,_,_,_,Q),T),
+             ordenaL(T,R). 
 
 
-ordCst(R) :- solucoes(Q, atos(_,_,_,_,_,Q), T),
-             isort(T,R). 
+ordenaL([X],[X]).
+ordenaL([H|T],OL) :- ordenaL(T,OT),
+                     insr(H,OT,OL).
 
-insert(X,[],[X]).
-insert(X,[H|T],[X,H|T]) :- X =< H.
-insert(X,[H|T],[H|NT]) :- X > H, insert(X, T, NT).
-
-isort([X], [X]).
-isort([H|T], OL) :- isort(T, OT), insert(H, OT, OL).
+insr(X,[],[X]).
+insr(X,[H|T],[X,H|T]) :- X =< H.
+insr(X,[H|T],[H|NT]) :- X > H, 
+                        insr(X,T,NT).
 
 
 % Médicos de uma dada Instituição
 % Extensão do predicado medInst : I, R -> {V,F}
-=======
-% Médicos de uma dada Instituição
-% Extensão do predicado medInst : I, R -> {V,F}
 
->>>>>>> 8fb89f2e05f070d5b1c481e4548015d33ca31e86
 medInst(I,R) :- solucoes(ID,(cuidado_prestado(ID,_,I,_)),L), 
                 getDoc(L,R).
 
-
-<<<<<<< HEAD
 getDoc([],[]).
 getDoc([X|XS],RS) :- solucoes(M,atos(_,_,X,_,M,_),MS),
                      getDoc(XS,TS),
@@ -423,13 +441,8 @@ getDoc([X|XS],RS) :- solucoes(M,atos(_,_,X,_,M,_),MS),
                      retiraRep(F,RS).    
 
 append([],L,L). 
-append([H|T],L2,[H|L3])  :-  append(T,L2,L3).
-=======
-
-getDoc([],[]).
-getDoc([X|XS],RS) :- getDoc(XS,TS),
-                     solucoes(M,atos(_,_,X,_,M,_),MS),
-                     concat(MS,TS,RS).    
+append([H|T],L2,[H|L3]) :- append(T,L2,L3).
+  
 
 % Média dos custos dos atos
 % Extensão do precicado mediaCusto : I, R -> {V,F}
@@ -440,4 +453,3 @@ mediaCusto(R) :- solucoes((X,U,Y,Z,W,Q), atos(X,U,Y,Z,W,Q), P),
                  R is F/K.
                    
 
->>>>>>> 8fb89f2e05f070d5b1c481e4548015d33ca31e86
