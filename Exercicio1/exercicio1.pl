@@ -2,7 +2,7 @@
 % Grupo 1
 
 % Adriana Guedes
-% Marco Barbosa 
+% Marco Aurélio Barbosa
 % Guilherme Guerreiro
 % Ricardo Certo
 
@@ -378,7 +378,7 @@ corPuls(R) :- solucoes(C,atos(_,_,_,C,_,_),T),
               retiraRep(T,R).
 
 
-%Ato Médico Mais Caro Registado até ao Momento
+% Ato Médico Mais Caro Registado até ao Momento
 % Extensão do predicado maisCro : I -> {V,F}
 
 msCaro(R) :- solucoes(Q, atos(_,_,_,_,_,Q), T),
@@ -389,3 +389,26 @@ maxList([],0).
 maxList([H],H).
 maxList([H|T],H) :- maxList(T,REST), H > REST.
 maxList([H|T],REST) :- maxList(T,REST), REST >= H.  
+
+% Médicos de uma dada Instituição
+% Extensão do predicado medInst : I, R -> {V,F}
+
+medInst(I,R) :- solucoes(ID,(cuidado_prestado(ID,_,I,_)),L), 
+                getDoc(L,R).
+
+
+
+getDoc([],[]).
+getDoc([X|XS],RS) :- getDoc(XS,TS),
+                     solucoes(M,atos(_,_,X,_,M,_),MS),
+                     append(MS,TS,RS).    
+
+% Média dos custos dos atos
+% Extensão do precicado mediaCusto : I, R -> {V,F}
+
+mediaCusto(R) :- solucoes((X,U,Y,Z,W,Q), atos(X,U,Y,Z,W,Q), P),
+                 atoCusto(P,F),
+                 comprimento(P,K),
+                 R is F/K.
+                   
+
