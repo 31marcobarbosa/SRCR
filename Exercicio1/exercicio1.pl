@@ -79,7 +79,7 @@ atos( '11-01-17', 1, 1, 'Sem_pulseira', 'Dr.Pardal', 2).
 atos( '12-02-17', 5, 8, 'Sem_pulseira', 'Dra.Teresa', 13.75).
 atos( '20-03-17', 11, 11, 'Sem_pulseira', 'Dra.Marta', 13).
 atos( '27-01-17', 2, 7, 'Amarela', 'Dr.Pedro Martins', 11).
-atos( '01-01-17', 6, 6, 'Laranja', 'Dr.Reveillon', 16).
+atos( '01-01-17', 6, 6, 'Laranja', 'Dr.Reveillon', 50).
 atos( '03-03-17', 3, 1, 'Sem_pulseira', 'Dra.Candida', 45).
 atos( '08-03-17', 9, 9, 'Vermelha', 'Dr.Lima', 50).
 atos( '14-02-17', 14, 7, 'Amarela', 'Dra.Mafalda', 23).
