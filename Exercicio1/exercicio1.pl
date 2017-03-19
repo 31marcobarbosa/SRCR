@@ -54,21 +54,24 @@ cuidado_prestado( 5,'Oncologia','IPO','Porto').
 cuidado_prestado( 6,'Urgência','Hospital de Santa Maria','Porto').
 cuidado_prestado( 7,'Urgência','Hospital da Luz','Guimaraes').
 cuidado_prestado( 8,'Neurologia','Centro Hospitalar Sao Joao','Porto').
-cuidado_prestado( 9,'Ortopedia','Hospital da Luz','Guimaraes').
+cuidado_prestado( 9,'Urgência','Hospital de Braga','Braga').
 
 
 % --------------------------------------------------------------
 % Extensao do predicado ato_medico:  Data, IdUt, IdServ, CorPulseira, Médico, Custo -> { V, F }
 
-atos( '01-03-17', 1, 6, 'Verde', 'Dra.Luisa', 25.5).
+atos( '24-02-17', 8, 4, 'Sem_pulseira', 'Dr.Mourao', 4).
 atos( '25-02-17', 1, 2, 'Sem_pulseira', 'Dr.Barroso', 12).
-atos( '03-03-17', 3, 1, 'Sem_pulseira', 'Dra.Candida', 45).
+atos( '10-02-17', 4, 3, 'Sem_pulseira', 'Dr.Falcão', 20).
+atos( '19-03-17', 3, 9, 'Amarela', 'Dr.Bones', 50).
 atos( '11-01-17', 1, 1, 'Sem_pulseira', 'Dr.Pardal', 2).
-atos( '12-02-17', 5, 1, 'Sem_pulseira', 'Dra.Teresa', 13.75).
+atos( '12-02-17', 5, 8, 'Sem_pulseira', 'Dra.Teresa', 13.75).
 atos( '27-01-17', 2, 7, 'Amarela', 'Dr.Pedro Martins', 11).
 atos( '01-01-17', 6, 6, 'Laranja', 'Dr.Reveillon', 16).
-atos( '24-02-17', 8, 4, 'Amarela', 'Dr.Mourao', 4).
-atos( '08-03-17', 9, 8, 'Vermelha', 'Dr.Lima', 50).
+atos( '03-03-17', 3, 1, 'Sem_pulseira', 'Dra.Candida', 45).
+atos( '08-03-17', 9, 9, 'Vermelha', 'Dr.Lima', 50).
+atos( '30-01-17', 7, 5, 'Sem_pulseira', 'Dr.Quimio', 10).
+atos( '01-03-17', 1, 6, 'Verde', 'Dra.Luisa', 25.5).
 
 
 
@@ -375,3 +378,14 @@ corPuls(R) :- solucoes(C,atos(_,_,_,C,_,_),T),
               retiraRep(T,R).
 
 
+%Ato Médico Mais Caro Registado até ao Momento
+% Extensão do predicado maisCro : I -> {V,F}
+
+msCaro(R) :- solucoes(Q, atos(_,_,_,_,_,Q), T),
+             maxList(T,R). 
+
+
+maxList([],0).
+maxList([H],H).
+maxList([H|T],H) :- maxList(T,REST), H > REST.
+maxList([H|T],REST) :- maxList(T,REST), REST >= H.  
