@@ -1,3 +1,4 @@
+
 % Sistemas de Representação de Conhecimento e Raciocínio - Exercício 1
 % Grupo 1
 
@@ -74,7 +75,7 @@ atos( '24-02-17', 8, 4, 'Sem_pulseira', 'Dr.Mourao', 4).
 atos( '25-02-17', 1, 2, 'Sem_pulseira', 'Dr.Barroso', 12).
 atos( '28-01-17', 13, 9, 'Laranja', 'Dr.Tomas', 5).
 atos( '10-02-17', 4, 3, 'Sem_pulseira', 'Dr.Falcão', 20).
-atos( '19-03-17', 3, 9, 'Amarela', 'Dr.Bones', 50).
+atos( '19-03-17', 3, 8, 'Amarela', 'Dr.Bones', 50).
 atos( '11-01-17', 1, 1, 'Sem_pulseira', 'Dr.Pardal', 2).
 atos( '12-02-17', 5, 8, 'Sem_pulseira', 'Dra.Teresa', 13.75).
 atos( '20-03-17', 11, 11, 'Sem_pulseira', 'Dra.Marta', 13).
@@ -396,16 +397,22 @@ corPuls(C,R) :- solucoes(C,atos(_,_,_,C,_,_),T),
 % Extensão do predicado msCro : I -> {V,F}
 
 msCro(R) :- solucoes(Q,atos(_,_,_,_,_,Q),T),
-            maxLst(T,C),
-            solucoes(F,atos(_,_,F,_,_,C),[L|_]),
-            findCuid(L,R).
-             
-findCuid(X,R) :- solucoes((D,I,C),cuidado_prestado(X,D,I,C),R).
+            maxLst(T,0,C),
+            solucoes((X,U,Y,Z,W,C), atos(X,U,Y,Z,W,C),K),
+            servAtos(K,R).
 
-maxLst([],0).
-maxLst([H],H).
-maxLst([H|T],H) :- maxLst(T,REST), H > REST.
-maxLst([H|T],REST) :- maxLst(T,REST), REST >= H. 
+servAtos([(_,_,S,_,_,_)],R) :- solucoes((S,B,C,D), cuidado_prestado(S,B,C,D), R).
+servAtos([(_,_,S,_,_,_)|Cs],R) :- solucoes((S,B,C,D), cuidado_prestado(S,B,C,D), P),
+                                  servAtos(Cs,F),
+                                  concat(P,F,R). 
+
+maxLst([C],K,R) :- maior(C,K,X),
+                   R is X.
+maxLst([C|Cs],K,R) :- maior(C,K,X),
+                      maxLst(Cs,X,R).
+
+maior(X,Y,X) :- X >= Y.
+maior(X,Y,Y) :- Y > X.
 
 
 % Ordenar os Atos Médicos Registados até ao Momento
@@ -443,4 +450,3 @@ mediaCusto(R) :- solucoes((X,U,Y,Z,W,Q), atos(X,U,Y,Z,W,Q), P),
                  atoCusto(P,F),
                  comprimento(P,K),
                  R is F/K.
-                   
