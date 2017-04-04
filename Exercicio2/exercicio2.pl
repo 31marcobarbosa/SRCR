@@ -124,26 +124,33 @@ demo( Questao,desconhecido ) :-
 nao( R ) :- R, !, fail.
 nao( R ).
 
-evolucao( Termo ) :-
-    solucoes( Invariante,+Termo::Invariante,Lista ),
-    insercao( Termo ),
-    teste( Lista ).
-
 insercao( Termo ) :-
     assert( Termo ).
 insercao( Termo ) :-
     retract( Termo ),!,fail.
 
-teste( [] ).
-teste( [R|LR] ) :-
-    R,
-    teste( LR ).
+evolucao(E) :- solucoes(I,+E::I,L),
+               inserir(E),
+               teste(L).
+
+teste([]).
+teste([X|Y]) :- X , teste(Y).
 
 solucoes( X,Y,Z ) :-
     findall( X,Y,Z ).
 
-comprimento( S,N ) :-
-    length( S,N ).
+comprimento([],0).
+comprimento([X|P],N) :- comprimento(P,G) , 
+                        N is 1 + G.
+
+remove(T) :- retract(T).
+
+inserir(E) :- assert(E).
+inserir(E) :- retract(E),!,fail.
+
+retroceder(E) :- solucoes(I,+E::I,L),
+                 teste(L),
+                 remove(E).
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 %					    INVARIANTES
@@ -179,6 +186,12 @@ comprimento( S,N ) :-
 +atos(D,IDUT,IDS,CP,MDC,C) :: (utente(IDUT,_,_,_,_,_),
                               cuidado_prestado(IDS,_,_,_)).
 
+% ---------------------------------------------------------
+% Invariante referencial: não admitir mais do que 2 atos no mesmo dia
+% realizados pelo mesmo utente
+
+
+
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 %					CONHECIMENTO INTERDITO
@@ -191,6 +204,24 @@ excecao(utente(I,N,Id,R,C,Ct)) :- utente(I,N,Id,R,C,nxpto).
 nulo(nxpto).
 +utente(I,N,Id,R,C,Ct) :: (solucoes((I,N,Id,R,C,Ct), (utente(16,'Djalo',30,'Rua Tangente II','Arouca',Ct),nao(nulo(Ct))),S), 
 							comprimento( S,N ) ,
+							N == 0).
+
+% utente 17 tem idade que ninguém pode conhecer
+
+utente( 17,'Maria de Jesus',ixpto,'Rua dos Videiras','Estoril','922225014').
+excecao(utente(I,N,Id,R,C,Ct)) :- utente(I,N,ixpto,R,C,Ct).
+nulo(ixpto).
++utente(I,N,Id,R,C,Ct) :: (solucoes((I,N,Id,R,C,Ct), (utente(17,'Maria de Jesus',Id,'Rua dos Videiras','Estoril','922225014'),nao(nulo(Id))),S), 
+							comprimento( S,N ) ,
+							N == 0).
+
+% ato do dia 1-04-2017 tem um medico que ninguém pode conhecer
+
+atos( '01-04-17', 2, 10, 'Verde', medxpto, 27.5).
+excecao(atos(D,IdUt,IdS,C,Dt,P)) :- atos(D,IdUt,IdS,C,medxpto,P).
+nulo(medxpto).
++atos(D,IdUt,IdS,C,Dt,P) :: ( solucoes((D,IdUt,IdS,C,Dt,P), (atos('01-04-17', 2, 10, 'Verde', Dt, 27.5), nao(nulo(Dt))),S),
+							comprimento( S,N ),
 							N == 0).
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
