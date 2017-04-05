@@ -110,7 +110,7 @@ atos( '10-03-17', 12, 11, cor_desconhecida, 'Dr.Luis', 12.50).
 % 
 % --------------------------------------------------------------
 
-% Extensao do meta-predicado demo: Questao,Resposta -> {V,F}
+% Extensao do meta-predicado demo: Questao,Resposta -> {V, F, D}
 
 demo( Questao,verdadeiro ) :- Questao.
 demo( Questao, falso ) :- -Questao.
@@ -119,7 +119,7 @@ demo( Questao,desconhecido ) :-
     nao( -Questao ).
 
 %--------------------------------- - - - - - - - - - -  -  -  -  -   -
-% Extensao do meta-predicado nao: Questao -> {V,F}
+% Extensao do meta-predicado nao: Questao -> {V, F, D}
 
 nao( R ) :- R, !, fail.
 nao( R ).
@@ -151,6 +151,56 @@ inserir(E) :- retract(E),!,fail.
 retroceder(E) :- solucoes(I,+E::I,L),
                  teste(L),
                  remove(E).
+
+% ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+%			  ADIÇÃO E REMOCÃO DE CONHECIMENTO
+% ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+% -------------------------------------------------------------
+% Registar utentes
+% Extensao do predicado registaUtentes : L,N,O,P -> {V, F, D}
+
+registaUtentes(ID,NM,I,RU,CDD,CNT) :- evolucao(utente(ID,NM,I,RU,CDD,CNT)).  
+
+% -------------------------------------------------------------
+% Registar cuidados
+% Extensao do predicado registaCuidados : L,M,N,O -> {V, F, D}
+
+registaCuidados(ID,D,I,C) :- evolucao(cuidado_prestado(ID,D,I,C)).
+
+% -------------------------------------------------------------
+% Registar atos médicos
+% Extensao do predicado registaAtos : L,M,N,O -> {V, F, D}
+
+registaAtos(D,IDUT,IDS,CP,MDC,C) :- evolucao(atos(D,IDUT,IDS,CP,MDC,C)).
+
+% -------------------------------------------------------------
+% Remover utentes
+% Extensao do predicado removeUtentes : L -> {V, F, D}
+
+removeUtentes(U) :- solucoes((D,U,IDS),atos(D,U,IDS,_,_,_),R),
+          removeTodosAtos(R),
+          retroceder(utente(U,N,I,RU,CDD,CNT)).
+
+removeTodosAtos([]).
+removeTodosAtos([(D,IDUT,IDS)]) :- removeAtos(D,IDUT,IDS).
+removeTodosAtos([(D,IDUT,IDS)|As]) :- removeAtos(D,IDUT,IDS),
+                        removeTodosAtos(As).
+
+% -------------------------------------------------------------
+% Remover cuidados
+% Extensao do predicado removeCuidados : L -> {V, F, D}
+
+removeCuidados(I) :- retroceder(cuidado_prestado(I,D,C,Cid)).
+
+% -------------------------------------------------------------
+% Remover atos médicos
+% Extensao do predicado removeAtos : L -> {V, F, D}
+
+removeAtos(D,IDUT,IDS) :- retroceder(atos(D,IDUT,IDS,_,_,_)).
+                               
+
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 %					    INVARIANTES
@@ -186,12 +236,6 @@ retroceder(E) :- solucoes(I,+E::I,L),
 +atos(D,IDUT,IDS,CP,MDC,C) :: (utente(IDUT,_,_,_,_,_),
                               cuidado_prestado(IDS,_,_,_)).
 
-% ---------------------------------------------------------
-% Invariante referencial: não admitir mais do que 2 atos no mesmo dia
-% realizados pelo mesmo utente
-
-
-
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 %					CONHECIMENTO INTERDITO
@@ -225,13 +269,29 @@ nulo(medxpto).
 							N == 0).
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-%					CONHECIMENTO IMPRECISO
+%				CONHECIMENTO IMPRECISO (valor nulo impreciso)
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 % um ato pode ter custado 50 ou 150 euros
 excecao(atos( '1-03-17', 12, 11, 'Sem_pulseira', 'Dr.Luisa', 50)).
 excecao(atos( '1-03-17', 12, 11, 'Sem_pulseira', 'Dr.Luisa', 150)).
 
+% uma pulseira pode ter a cor verde ou vermelho euros
+excecao(atos( '07-04-17', 12, 11, 'Verde', 'Dr.Luisa', 250)).
+excecao(atos( '07-04-17', 12, 11, 'Verde', 'Dr.Luisa', 250)).
+
+% um ato pode ter sido feito pelo Dr.João ou pela Dr.Roberto
+excecao(atos( '07-04-17', 12, 11, 'Verde', 'Dr.João', 250)).
+excecao(atos( '07-04-17', 12, 11, 'Verde', 'Dr.Roberto', 250)).
+
+% um cuidadado pode ter prestado em dois distintos hospitais
+excecao(cuidado_prestado( 13,'Pediatria','Hospital Privado do Alagarve','Faro')).
+excecao(cuidado_prestado( 13,'Pediatria','Hospital de Faro','Faro')).
+
+% um utente com o mesmo ID pode estar registado com diferentes
+% nomes do seu nome completo
+excecao(utente( 18,'Carlos',33,'Avenida 25 de Abril','Santarém','935694789')).
+excecao(utente( 18,'Carlos Alberto',33,'Avenida 25 de Abril','Santarém','935694789')).
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 %					CONHECIMENTO INCERTO
