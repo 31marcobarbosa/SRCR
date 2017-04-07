@@ -90,23 +90,6 @@ atos( '10-03-17', 12, 11, cor_desconhecida, 'Dr.Luis', 12.50).
 
 
 % --------------------------------------------------------------
-
-
--utente(Id,Nome,Idade,Morada) :-
-		nao(utente(Id,Nome,Idade,Morada)) ,
-		nao(excecao(utente(Id,Nome,Idade,Morada))).
-
-
--atos(D,IdUt,IdServ,C,M,Ct) :- 
-	  nao(atos(D,IdUt,IdServ,C,M,Ct)) , 
-	  nao(excecao(atos(D,IdUt,IdServ,C,M,Ct))).
-
-
--cuidado_prestado(Id,D,I,C) :- 
-				nao(cuidado_prestado(Id,D,I,C)) ,
-				nao(cuidado_prestado(excecao(Id,D,I,C))).
-
-% --------------------------------------------------------------
 % 
 % --------------------------------------------------------------
 
@@ -235,6 +218,27 @@ removeAtos(D,IDUT,IDS) :- retroceder(atos(D,IDUT,IDS,_,_,_)).
 
 +atos(D,IDUT,IDS,CP,MDC,C) :: (utente(IDUT,_,_,_,_,_),
                               cuidado_prestado(IDS,_,_,_)).
+
+
+
+% ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+%					CONHECIMENTO NEGATIVO
+% ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+-utente(Id,Nome,Idade,Morada) :-
+		nao(utente(Id,Nome,Idade,Morada)) ,
+		nao(excecao(utente(Id,Nome,Idade,Morada))).
+
+
+-atos(D,IdUt,IdServ,C,M,Ct) :- 
+	  nao(atos(D,IdUt,IdServ,C,M,Ct)) , 
+	  nao(excecao(atos(D,IdUt,IdServ,C,M,Ct))).
+
+
+-cuidado_prestado(Id,D,I,C) :- 
+				nao(cuidado_prestado(Id,D,I,C)) ,
+				nao(cuidado_prestado(excecao(Id,D,I,C))).
 
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
