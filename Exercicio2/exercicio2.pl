@@ -89,9 +89,9 @@ atos( '01-03-17', 10, 6, 'Verde', medico_desconhecido, 25.5).
 atos( '10-03-17', 12, 11, cor_desconhecida, 'Dr.Luis', 12.50).
 
 
-% --------------------------------------------------------------
-% 
-% --------------------------------------------------------------
+% ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+%			  		  FUNÇÕES GERAIS
+% ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 % Extensao do meta-predicado demo: Questao,Resposta -> {V, F, D}
 
@@ -239,6 +239,24 @@ removeAtos(D,IDUT,IDS) :- retroceder(atos(D,IDUT,IDS,_,_,_)).
 -cuidado_prestado(Id,D,I,C) :- 
 				nao(cuidado_prestado(Id,D,I,C)) ,
 				nao(cuidado_prestado(excecao(Id,D,I,C))).
+
+
+% Um ato realizado no dia 05-04-17 foi realizado mas a cor da pulseira era
+% desconhecida, mas sabemos que nãoe era vermelha
+
+atos( '10-03-17', 10, 10, cor_desconhecida, 'Dr.Luis', 29).
+-atos( '10-03-17', 10, 10, 'Vermelho', 'Dr.Luis', 29 ).
+
+% Num cuidado prestado numa dada cidade não sabemos a instituição onde esse
+% cuidado é realizado mas sabemos que não é realizado na Clínica Hospitalar de Faro 
+
+cuidado_prestado( 13,'Radiografia',instituicao_desconhecida,'Faro').
+-cuidado_prestado( 13,'Radiografia','Clínica Hospitalar de Faro','Faro').
+
+% Um utente registado tem uma idade incerta mas sabemos que não 75 anos 
+
+utente( 18,'Joaquina',idade_desconhecida,'Av.da Liberdade','Lisboa','962525258').
+-utente( 18,'Joaquina',75,'Av.da Liberdade','Lisboa','962525258').
 
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
