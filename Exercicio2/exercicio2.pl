@@ -255,8 +255,8 @@ cuidado_prestado( 13,'Radiografia',instituicao_desconhecida,'Faro').
 
 % Um utente registado tem uma idade incerta mas sabemos que não 75 anos 
 
-utente( 18,'Joaquina',idade_desconhecida,'Av.da Liberdade','Lisboa','962525258').
--utente( 18,'Joaquina',75,'Av.da Liberdade','Lisboa','962525258').
+utente( 19,'Joaquina',idade_desconhecida,'Av.da Liberdade','Lisboa','962525258').
+-utente( 19,'Joaquina',75,'Av.da Liberdade','Lisboa','962525258').
 
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -314,6 +314,14 @@ excecao(cuidado_prestado( 13,'Pediatria','Hospital de Faro','Faro')).
 % nomes do seu nome completo
 excecao(utente( 18,'Carlos',33,'Avenida 25 de Abril','Santarém','935694789')).
 excecao(utente( 18,'Carlos Alberto',33,'Avenida 25 de Abril','Santarém','935694789')).
+
+% O utente com o id nº20 tem uma idade compreendida entre 18 e 25
+excecao(utente( 20,'Alexandra',C,'Avenida 25 de Abril','Santarém','935694789')) :- 
+					C >= 18 , C =< 25.
+
+% O ato realiado no dia 07/04/2017 custou entre 15 e 35 euros
+atos( '07-04-17', 2, 1, 'Amarela', 'Dr.Mike', C) :- 
+					C >= 15 , C =< 35.
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 %					CONHECIMENTO INCERTO
