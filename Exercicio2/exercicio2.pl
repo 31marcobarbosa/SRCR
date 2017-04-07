@@ -241,14 +241,12 @@ removeAtos(D,IDUT,IDS) :- retroceder(atos(D,IDUT,IDS,_,_,_)).
 				nao(cuidado_prestado(excecao(Id,D,I,C))).
 
 
-% Um ato realizado no dia 05-04-17 foi realizado mas a cor da pulseira era
-% desconhecida, mas sabemos que nãoe era vermelha
+% Um ato realizado no dia 05-04-17 foi realizado mas a unica coisa que sabemos acerca da cor da pulseira é que nao é vermelha
 
-atos( '10-03-17', 10, 10, cor_desconhecida, 'Dr.Luis', 29).
--atos( '10-03-17', 10, 10, 'Vermelho', 'Dr.Luis', 29 ).
+atos( '05-04-17', 10, 10, cor_desconhecida, 'Dr.Luis', 29).
+-atos( '05-04-17', 10, 10, 'Vermelho', 'Dr.Luis', 29 ).
 
-% Num cuidado prestado numa dada cidade não sabemos a instituição onde esse
-% cuidado é realizado mas sabemos que não é realizado na Clínica Hospitalar de Faro 
+% Num cuidado prestado numa dada cidade não sabemos a instituição onde esse cuidado é realizado mas sabemos que não é realizado na Clínica Hospitalar de Faro 
 
 cuidado_prestado( 13,'Radiografia',instituicao_desconhecida,'Faro').
 -cuidado_prestado( 13,'Radiografia','Clínica Hospitalar de Faro','Faro').
@@ -306,22 +304,19 @@ excecao(atos( '07-04-17', 12, 11, 'Verde', 'Dr.Luisa', 250)).
 excecao(atos( '07-04-17', 12, 11, 'Verde', 'Dr.João', 250)).
 excecao(atos( '07-04-17', 12, 11, 'Verde', 'Dr.Roberto', 250)).
 
-% um cuidadado pode ter prestado em dois distintos hospitais
+% um cuidado pode ter prestado em dois hospitais distintos
 excecao(cuidado_prestado( 13,'Pediatria','Hospital Privado do Alagarve','Faro')).
 excecao(cuidado_prestado( 13,'Pediatria','Hospital de Faro','Faro')).
 
-% um utente com o mesmo ID pode estar registado com diferentes
-% nomes do seu nome completo
+% um utente com o mesmo ID pode estar registado com diferentes nomes do seu nome completo
 excecao(utente( 18,'Carlos',33,'Avenida 25 de Abril','Santarém','935694789')).
 excecao(utente( 18,'Carlos Alberto',33,'Avenida 25 de Abril','Santarém','935694789')).
 
 % O utente com o id nº20 tem uma idade compreendida entre 18 e 25
-excecao(utente( 20,'Alexandra',C,'Avenida 25 de Abril','Santarém','935694789')) :- 
-					C >= 18 , C =< 25.
+excecao(utente( 20,'Alexandra',C,'Avenida 25 de Abril','Santarém','935694789')) :- C >= 18 , C =< 25.
 
 % O ato realiado no dia 07/04/2017 custou entre 15 e 35 euros
-atos( '07-04-17', 2, 1, 'Amarela', 'Dr.Mike', C) :- 
-					C >= 15 , C =< 35.
+atos( '07-04-17', 2, 1, 'Amarela', 'Dr.Mike', C) :- C >= 15 , C =< 35.
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 %					CONHECIMENTO INCERTO
