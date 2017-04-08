@@ -258,7 +258,7 @@ utente( 19,'Joaquina',idade_desconhecida,'Av.da Liberdade','Lisboa','962525258')
 
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-%					CONHECIMENTO INTERDITO
+%			     CONHECIMENTO INTERDITO (valor nulo tipo 3)
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 % utente 16 tem contacto que ninguém pode conhecer
@@ -289,7 +289,7 @@ nulo(medxpto).
 							N == 0).
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-%				CONHECIMENTO IMPRECISO (valor nulo impreciso)
+%				CONHECIMENTO IMPRECISO (valor nulo tipo 2)
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 % um ato pode ter custado 50 ou 150 euros
@@ -305,7 +305,7 @@ excecao(atos( '07-04-17', 12, 11, 'Verde', 'Dr.João', 250)).
 excecao(atos( '07-04-17', 12, 11, 'Verde', 'Dr.Roberto', 250)).
 
 % um cuidado pode ter prestado em dois hospitais distintos
-excecao(cuidado_prestado( 13,'Pediatria','Hospital Privado do Alagarve','Faro')).
+excecao(cuidado_prestado( 13,'Pediatria','Hospital Privado do Algarve','Faro')).
 excecao(cuidado_prestado( 13,'Pediatria','Hospital de Faro','Faro')).
 
 % um utente com o mesmo ID pode estar registado com diferentes nomes do seu nome completo
@@ -316,10 +316,10 @@ excecao(utente( 18,'Carlos Alberto',33,'Avenida 25 de Abril','Santarém','935694
 excecao(utente( 20,'Alexandra',C,'Avenida 25 de Abril','Santarém','935694789')) :- C >= 18 , C =< 25.
 
 % O ato realiado no dia 07/04/2017 custou entre 15 e 35 euros
-atos( '07-04-17', 2, 1, 'Amarela', 'Dr.Mike', C) :- C >= 15 , C =< 35.
+excecao(atos( '07-04-17', 2, 1, 'Amarela', 'Dr.Mike', C)) :- C >= 15 , C =< 35.
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-%					CONHECIMENTO INCERTO
+%					CONHECIMENTO INCERTO (valor nulo tipo 1)
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 % UTENTES -----------------------------------------------------
