@@ -168,6 +168,21 @@ retroceder(E) :- solucoes(I,-E::I,L),
                               cuidado_prestado(IDS,_,_,_)).
 
 
+% Invariantes conhecimento negativo 
+% não é possível remover um cuidado prestado se tiver um ato associado
+
+-cuidado_prestado(ID,D,I,X) :: (solucoes(ID,atos(_,_,ID,_,_,_),L),
+                               comprimento(L,N), 
+                               N==0).
+
+% não é possível remover um ato se tiver um utente associado
+
+-atos(D,IdUt,IdServ,C,M,Ct) :: (solucoes(IdUt,utente(IdUt,_,_,_),L),
+                               comprimento(L,N), 
+                               N==0).
+
+
+
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 %			  ADIÇÃO E REMOCÃO DE CONHECIMENTO
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
