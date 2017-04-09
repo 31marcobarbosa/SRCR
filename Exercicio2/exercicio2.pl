@@ -103,21 +103,15 @@ demo( Questao,desconhecido ) :-
 
 %--------------------------------- - - - - - - - - - -  -  -  -  -   -
 % Extensao do meta-predicado nao: Questao -> {V, F, D}
+
 nao( R ) :- R, !, fail.
 nao( R ).
 
+insercao( Termo ) :-
+    assert( Termo ).
+insercao( Termo ) :-
+    retract( Termo ),!,fail.
 
-
-comprimento([],0).
-comprimento([X|P],N) :- comprimento(P,G) , 
-                        N is 1 + G.
-
-remove(T) :- retract(T).
-
-inserir(E) :- assert(E).
-inserir(E) :- retract(E),!,fail.
-
-% Extensão do predicado que permite a evolucao do conhecimento
 evolucao(E) :- solucoes(I,+E::I,L),
                inserir(E),
                teste(L).
@@ -128,60 +122,29 @@ teste([X|Y]) :- X , teste(Y).
 solucoes( X,Y,Z ) :-
     findall( X,Y,Z ).
 
+comprimento([],0).
+comprimento([X|P],N) :- comprimento(P,G) ,
+                        N is 1 + G.
+
+remove(T) :- retract(T).
+
+inserir(E) :- assert(E).
+inserir(E) :- retract(E),!,fail.
 
 retroceder(E) :- solucoes(I,-E::I,L),
                  teste(L),
                  remove(E).
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-%					    INVARIANTES
-% ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-
-% Invariante Estrutural para utente:
-% (não permite a inserção de conhecimento repetido)
-
-+utente(I,Nome,IDD,RU,CDD,CNT) :: (solucoes(I,(utente(I,_,_,_,_,_)),L),
-                        comprimento(L,N),
-                        N == 1).
-
-
-% --------------------------------------------------------------
-% Invariante Estrutural para cuidado_prestado:
-% (não permite a inserção de conhecimento repetido)
-
-+cuidado_prestado(ID,D,I,X) ::(solucoes(ID,(cuidado_prestado(ID,_,_,_)),L),
-                                comprimento(L,N),
-                                 N == 1).
-
-% --------------------------------------------------------------
-% Invariante Estrutural para cuidado_prestado:
-% não permite a inserção de conhecimento repetido
-
-+atos(D,IDUT,IDS,CP,MDC,C) :: (solucoes((D,IDUT,IDS),(atos(D,IDUT,IDS,_,_,_)),L),
-                              comprimento(L,N),
-                              N == 1).
-
-% ---------------------------------------------------------
-% Invariante que certifica a existência de um ID de utente e de um ID servico
-
-+atos(D,IDUT,IDS,CP,MDC,C) :: (utente(IDUT,_,_,_,_,_),
-                              cuidado_prestado(IDS,_,_,_)).
-
-
-% ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 %			  ADIÇÃO E REMOCÃO DE CONHECIMENTO
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-
-registar(T) :- evolucao(T).
-
-remover(T) :- retroceder(T).
 
 
 % -------------------------------------------------------------
 % Registar utentes
 % Extensao do predicado registaUtentes : L,N,O,P -> {V, F, D}
 
-registaUtentes(ID,NM,I,RU,CDD,CNT) :- evolucao(utente(ID,NM,I,RU,CDD,CNT)).  
+registaUtentes(ID,NM,I,RU,CDD,CNT) :- evolucao(utente(ID,NM,I,RU,CDD,CNT)).
 
 % -------------------------------------------------------------
 % Registar cuidados
@@ -219,7 +182,43 @@ removeCuidados(I) :- retroceder(cuidado_prestado(I,D,C,Cid)).
 % Extensao do predicado removeAtos : L -> {V, F, D}
 
 removeAtos(D,IDUT,IDS) :- retroceder(atos(D,IDUT,IDS,_,_,_)).
-                               
+
+
+
+% ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+%					    INVARIANTES
+% ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+% Invariante Estrutural para utente:
+% (não permite a inserção de conhecimento repetido, utentes com o mesmo ID)
+
++utente(I,Nome,IDD,RU,CDD,CNT) :: (solucoes(I,(utente(I,_,_,_,_,_)),L),
+                        comprimento(L,N),
+                        N == 1).
+
+
+% --------------------------------------------------------------
+% Invariante Estrutural para cuidado_prestado:
+% (não permite a inserção de conhecimento repetido, cuidados prestados com o mesmo ID)
+
++cuidado_prestado(ID,D,I,X) ::(solucoes(ID,(cuidado_prestado(ID,_,_,_)),L),
+                                comprimento(L,N),
+                                 N == 1).
+
+% --------------------------------------------------------------
+% Invariante Estrutural para cuidado_prestado:
+% não permite a inserção de conhecimento repetido, atos com o mesmo ID
+
++atos(D,IDUT,IDS,CP,MDC,C) :: (solucoes((D,IDUT,IDS),(atos(D,IDUT,IDS,_,_,_)),L),
+                              comprimento(L,N),
+                              N == 1).
+
+% ---------------------------------------------------------
+% Invariante que certifica a existência de um ID de utente e de um ID servico
+
++atos(D,IDUT,IDS,CP,MDC,C) :: (utente(IDUT,_,_,_,_,_),
+                              cuidado_prestado(IDS,_,_,_)).
+
 
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -232,14 +231,27 @@ removeAtos(D,IDUT,IDS) :- retroceder(atos(D,IDUT,IDS,_,_,_)).
 		nao(excecao(utente(Id,Nome,Idade,Rua,Cidade,Contacto))).
 
 
--atos(D,IdUt,IdServ,C,M,Ct) :- 
-	  nao(atos(D,IdUt,IdServ,C,M,Ct)) , 
+-atos(D,IdUt,IdServ,C,M,Ct) :-
+	  nao(atos(D,IdUt,IdServ,C,M,Ct)) ,
 	  nao(excecao(atos(D,IdUt,IdServ,C,M,Ct))).
 
 
--cuidado_prestado(Id,D,I,C) :- 
+-cuidado_prestado(Id,D,I,C) :-
 				nao(cuidado_prestado(Id,D,I,C)) ,
 				nao(cuidado_prestado(excecao(Id,D,I,C))).
+
+% não é possível remover um cuidado prestado se tiver um ato associado
+
+-cuidado_prestado(ID,D,I,X) :: (solucoes(ID,atos(_,_,ID,_,_,_),L),
+                               comprimento(L,N),
+                               N==0).
+
+% não é possível remover um ato se tiver um utente associado
+
+-atos(D,IdUt,IdServ,C,M,Ct) :: (solucoes(IdUt,utente(IdUt,_,_,_),L),
+                               comprimento(L,N),
+                               N==0).
+
 
 
 % Um ato realizado no dia 05-04-17 foi realizado mas a unica coisa que sabemos acerca da cor da pulseira é que nao é vermelha
@@ -247,50 +259,51 @@ removeAtos(D,IDUT,IDS) :- retroceder(atos(D,IDUT,IDS,_,_,_)).
 atos( '05-04-17', 10, 10, cor_desconhecida, 'Dr.Luis', 29).
 -atos( '05-04-17', 10, 10, 'Vermelho', 'Dr.Luis', 29 ).
 
-% Num cuidado prestado numa dada cidade não sabemos a instituição onde esse cuidado é realizado mas sabemos que não é realizado na Clínica Hospitalar de Faro 
+% Num cuidado prestado numa dada cidade não sabemos a instituição onde esse cuidado é realizado mas sabemos que não é realizado na Clínica Hospitalar de Faro
 
 cuidado_prestado( 13,'Radiografia',instituicao_desconhecida,'Faro').
 -cuidado_prestado( 13,'Radiografia','Clínica Hospitalar de Faro','Faro').
 
-% Um utente registado tem uma idade incerta mas sabemos que não 75 anos 
+% Um utente registado tem uma idade incerta mas sabemos que não 75 anos
 
 utente( 19,'Joaquina',idade_desconhecida,'Av.da Liberdade','Lisboa','962525258').
 -utente( 19,'Joaquina',75,'Av.da Liberdade','Lisboa','962525258').
 
+% ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+%         CONHECIMENTO INCERTO (valor nulo tipo 1)
+% ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+% UTENTES -----------------------------------------------------
+% nome desconhecido
+excecao(utente(I,N,Idd,R,C,Con)) :-
+    utente(I,nome_desconhecido,Idd,R,C,Con).
+
+% idade desconhecida
+excecao(utente(I,N,Idd,R,C,Con)) :-
+    utente(I,N,idade_desconhecida,R,C,Con).
+
+% rua desconhecida
+excecao(utente(I,N,Idd,R,C,Con)) :-
+    utente(I,N,Idd,rua_desconhecida,C,Con).
+
+% cidade desconhecida
+excecao(utente(I,N,Idd,R,C,Con)) :-
+    utente(I,N,Idd,R,cidade_desconhecida,Con).
+
+% contacto desconhecido
+excecao(utente(I,N,Idd,R,C,Con)) :-
+    utente(I,N,Idd,R,C,contacto_desconhecido).
+
+% rua , cidade e contacto desconhecidos
+excecao(utente(I,N,Idd,R,C,Con)) :-
+    utente(I,N,Idd,rua_desconhecida,cidade_desconhecida,contacto_desconhecido).
+
+% rua e cidade desconhecidos
+excecao(utente(I,N,Idd,R,C,Con)) :-
+    utente(I,N,Idd,rua_desconhecida,cidade_desconhecida,Con).
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-%			     CONHECIMENTO INTERDITO (valor nulo tipo 3)
-% ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-
-% utente 16 tem contacto que ninguém pode conhecer
-
-utente( 16,'Djalo',30,'Rua Tangente II','Arouca',contacto_desconhecido).
-excecao(utente(I,N,Id,R,C,Ct)) :- utente(I,N,Id,R,C,contacto_desconhecido).
-nulo(contacto_desconhecido).
-+utente(16,'Djalo',30,'Rua Tangente II','Arouca',contacto_desconhecido) :: (solucoes((16,'Djalo',30,'Rua Tangente II','Arouca',contacto_desconhecido), (utente(16,'Djalo',30,'Rua Tangente II','Arouca',Ct),nao(nulo(Ct))),S), 
-							comprimento( S,N ) ,
-							N == 0).
-
-% utente 17 tem idade que ninguém pode conhecer
-
-utente( 17,'Maria de Jesus',idade_desconhecida,'Rua dos Videiras','Estoril','922225014').
-excecao(utente(I,N,Id,R,C,Ct)) :- utente(I,N,idade_desconhecida,R,C,Ct).
-nulo(idade_desconhecida).
-+utente(17,'Maria de Jesus',idade_desconhecida,'Rua dos Videiras','Estoril','922225014') :: (solucoes((17,'Maria de Jesus',idade_desconhecida,'Rua dos Videiras','Estoril','922225014'), (utente(17,'Maria de Jesus',Id,'Rua dos Videiras','Estoril','922225014'),nao(nulo(Id))),S), 
-							comprimento( S,N ) ,
-							N == 0).
-
-% ato do dia 1-04-2017 tem um medico que ninguém pode conhecer
-
-atos( '01-04-17', 2, 10, 'Verde', medico_desconhecido, 27.5).
-excecao(atos(D,IdUt,IdS,C,Dt,P)) :- atos(D,IdUt,IdS,C,medico_desconhecido,P).
-nulo(medico_desconhecido).
-+atos(D,IdUt,IdS,C,Dt,P) :: ( solucoes((D,IdUt,IdS,C,Dt,P), (atos('01-04-17', 2, 10, 'Verde', Dt, 27.5), nao(nulo(Dt))),S),
-							comprimento( S,N ),
-							N == 0).
-
-% ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-%				CONHECIMENTO IMPRECISO (valor nulo tipo 2)
+%       CONHECIMENTO IMPRECISO (valor nulo tipo 2)
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 % um ato pode ter custado 50 ou 150 euros
@@ -319,39 +332,29 @@ excecao(utente( 20,'Alexandra',C,'Avenida 25 de Abril','Santarém','935694789'))
 % O ato realiado no dia 07/04/2017 custou entre 15 e 35 euros
 excecao(atos( '07-04-17', 2, 1, 'Amarela', 'Dr.Mike', C)) :- C >= 15 , C =< 35.
 
+
+
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-%					CONHECIMENTO INCERTO (valor nulo tipo 1)
+%			     CONHECIMENTO INTERDITO (valor nulo tipo 3)
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-% UTENTES -----------------------------------------------------
-% nome desconhecido
-excecao(utente(I,N,Idd,R,C,Con)) :- 
-		utente(I,nome_desconhecido,Idd,R,C,Con).
+% utente 16 tem contacto que ninguém pode conhecer
 
-% idade desconhecida
-excecao(utente(I,N,Idd,R,C,Con)) :- 
-		utente(I,N,idade_desconhecida,R,C,Con).
+utente( 16,'Djalo',30,'Rua Tangente II','Arouca',contacto_desconhecido).
+excecao(utente(I,N,Id,R,C,Ct)) :- utente(I,N,Id,R,C,contacto_desconhecido).
+nulo(contacto_desconhecido).
++utente(16,'Djalo',30,'Rua Tangente II','Arouca',contacto_desconhecido) :: (solucoes((16,'Djalo',30,'Rua Tangente II','Arouca',contacto_desconhecido), (utente(16,'Djalo',30,'Rua Tangente II','Arouca',Ct),nao(nulo(Ct))),S),
+              comprimento( S,N ) ,
+              N == 0).
 
-% rua desconhecida
-excecao(utente(I,N,Idd,R,C,Con)) :- 
-		utente(I,N,Idd,rua_desconhecida,C,Con).
+% utente 17 tem idade que ninguém pode conhecer
 
-% cidade desconhecida
-excecao(utente(I,N,Idd,R,C,Con)) :- 
-		utente(I,N,Idd,R,cidade_desconhecida,Con).
-
-% contacto desconhecido
-excecao(utente(I,N,Idd,R,C,Con)) :- 
-		utente(I,N,Idd,R,C,contacto_desconhecido).
-
-% rua , cidade e contacto desconhecidos
-excecao(utente(I,N,Idd,R,C,Con)) :- 
-		utente(I,N,Idd,rua_desconhecida,cidade_desconhecida,contacto_desconhecido).
-
-% rua e cidade desconhecidos
-excecao(utente(I,N,Idd,R,C,Con)) :- 
-		utente(I,N,Idd,rua_desconhecida,cidade_desconhecida,Con).
-
+utente( 17,'Maria de Jesus',idade_desconhecida,'Rua dos Videiras','Estoril','922225014').
+excecao(utente(I,N,Id,R,C,Ct)) :- utente(I,N,idade_desconhecida,R,C,Ct).
+nulo(idade_desconhecida).
++utente(17,'Maria de Jesus',idade_desconhecida,'Rua dos Videiras','Estoril','922225014') :: (solucoes((17,'Maria de Jesus',idade_desconhecida,'Rua dos Videiras','Estoril','922225014'), (utente(17,'Maria de Jesus',Id,'Rua dos Videiras','Estoril','922225014'),nao(nulo(Id))),S),
+              comprimento( S,N ) ,
+              N == 0).
 
 % ATOS ---------------------------------------------------------------
 
@@ -364,7 +367,7 @@ excecao(atos(D,IdUt,IdServ,C,M,Ct)) :-
 excecao(atos(D,IdUt,IdServ,C,M,Ct)) :-
 		 atos(D,IdUt,IdServ,C,medico_desconhecido,Ct).
 
-% Custo Desconhecido  
+% Custo Desconhecido
 excecao(atos(D,IdUt,IdServ,C,M,Ct)) :-
 		 atos(D,IdUt,IdServ,C,M,custo_desconhecido).
 
@@ -377,18 +380,18 @@ excecao(atos(D,IdUt,IdServ,C,M,Ct)) :-
 
 
 % Instituição desconhecida
-excecao(cuidado_prestado(Id,D,I,C)) :- 
+excecao(cuidado_prestado(Id,D,I,C)) :-
 			cuidado_prestado(Id,D,instituicao_desconhecida,C).
 
 
 
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-%				 Programação em lógica					
+%				 Programação em lógica
 % ///////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 
 % -------------------------------------------------------------
-% Identificar os utentes por critérios de seleção 
+% Identificar os utentes por critérios de seleção
 
 utenteID(ID,R) :- solucoes((ID,X,Y,Z,W,K),utente(ID,X,Y,Z,W,K),R).
 
@@ -448,7 +451,7 @@ cuidCid(C,R) :- solucoes(S,cuidado_prestado(_,S,_,C),P),
 utentesInstituicao(I,R) :- solucoes(S, cuidado_prestado(S,_,I,_), P),
                            retiraRep(P,F),
                            utServ(F,R).
-                           
+
 utServ([S],R) :- utentesServico(S,R).
 utServ([S|Ss],R) :- utentesServico(S,F),
                     utServ(Ss,P),
@@ -485,7 +488,7 @@ atoInst(I,R) :- solucoes(S, cuidado_prestado(S,_,I,_), F),
 servAto([S],R) :- atoServ(S,R).
 servAto([S|Ss],R) :- atoServ(S,F),
                      servAto(Ss,P),
-                     concat(F,P,R). 
+                     concat(F,P,R).
 
 % -------------------------------------------------------------
 % Identificar os atos médicos realizados por serviço
@@ -494,27 +497,27 @@ servAto([S|Ss],R) :- atoServ(S,F),
 atoServ(S,R) :- solucoes((X,Y,S,Z,W,Q), atos(X,Y,S,Z,W,Q), R).
 
 % -------------------------------------------------------------
-% Determinar todas as instituições a que um utente recorreu 
+% Determinar todas as instituições a que um utente recorreu
 % Extensao do predicado nInstUte : I, L -> {V,F}
 
 nInstUte(U,R) :- nServUte(U,F),
                  servicosInstituicao(F,P),
                  retiraRep(P,R).
 
-servicosInstituicao([S],R) :- solucoes(I, cuidado_prestado(S,_,I,_), R).                    
+servicosInstituicao([S],R) :- solucoes(I, cuidado_prestado(S,_,I,_), R).
 servicosInstituicao([S|Ss],R) :-  solucoes(I, cuidado_prestado(S,_,I,_), P),
                                   servicosInstituicao(Ss,F),
                                   concat(P,F,R).
 
 % -------------------------------------------------------------
-% Determinar todas os serviços a que um utente recorreu 
+% Determinar todas os serviços a que um utente recorreu
 % Extensao do predicado nServUte : I, L -> {V,F}
 
 nServUte(U,R) :- solucoes(S, atos(_,U,S,_,_,_), P),
                  retiraRep(P,R).
 
 % -------------------------------------------------------------
-% Calcular o custo total dos atos médicos por utente 
+% Calcular o custo total dos atos médicos por utente
 % Extensao do predicado custoUte : I, L -> {V,F}
 
 custoUte(U,R) :- atoUte(U,F),
@@ -525,7 +528,7 @@ atoCusto([(_,_,_,_,_,C)|Cs],R) :- atoCusto(Cs,F),
                               R is C+F.
 
 % -------------------------------------------------------------
-% Calcular o custo total dos atos médicos por serviço 
+% Calcular o custo total dos atos médicos por serviço
 % Extensao do predicado custoServ : I, L -> {V,F}
 
 custoServ(S,R) :- atoServ(S,F),
@@ -539,13 +542,55 @@ custoInst(I,R) :- atoInst(I,F),
                   atoCusto(F,R).
 
 % -------------------------------------------------------------
-% Calcular o custo total dos atos médicos por data 
+% Calcular o custo total dos atos médicos por data
 % Extensao do predicado custoData : I, L -> {V,F}
 
 custoData(D,R) :- solucoes((D,X,Y,Z,W,Q), atos(D,X,Y,Z,W,Q), F),
                   atoCusto(F,R).
 
-                               
+% -------------------------------------------------------------
+% Registar utentes
+% Extensao do predicado registaUtentes : L,N,O,P -> {V,F}
+
+registaUtentes(ID,NM,I,RU,CDD,CNT) :- evolucao(utente(ID,NM,I,RU,CDD,CNT)).
+
+% -------------------------------------------------------------
+% Registar cuidados
+% Extensao do predicado registaCuidados : L,M,N,O -> {V,F}
+
+registaCuidados(ID,D,I,C) :- evolucao(cuidado_prestado(ID,D,I,C)).
+
+% -------------------------------------------------------------
+% Registar atos médicos
+% Extensao do predicado registaAtos : L,M,N,O -> {V,F}
+
+registaAtos(D,IDUT,IDS,CP,MDC,C) :- evolucao(atos(D,IDUT,IDS,CP,MDC,C)).
+
+% -------------------------------------------------------------
+% Remover utentes
+% Extensao do predicado removeUtentes : L -> {V,F}
+
+removeUtentes(U) :- solucoes((D,U,IDS),atos(D,U,IDS,_,_,_),R),
+          removeTodosAtos(R),
+          retroceder(utente(U,N,I,RU,CDD,CNT)).
+
+removeTodosAtos([]).
+removeTodosAtos([(D,IDUT,IDS)]) :- removeAtos(D,IDUT,IDS).
+removeTodosAtos([(D,IDUT,IDS)|As]) :- removeAtos(D,IDUT,IDS),
+                        removeTodosAtos(As).
+
+% -------------------------------------------------------------
+% Remover cuidados
+% Extensao do predicado removeCuidados : L -> {V,F}
+
+removeCuidados(I) :- retroceder(cuidado_prestado(I,D,C,Cid)).
+
+% -------------------------------------------------------------
+% Remover atos médicos
+% Extensao do predicado removeAtos : L -> {V,F}
+
+removeAtos(D,IDUT,IDS) :- retroceder(atos(D,IDUT,IDS,_,_,_)).
+
 
 % ---------------------------------------------------------
 % EXTRAS
@@ -597,7 +642,7 @@ msCro(R) :- solucoes(Q,atos(_,_,_,_,_,Q),T),
 servAtos([(_,_,S,_,_,_)],R) :- solucoes((S,B,C,D), cuidado_prestado(S,B,C,D), R).
 servAtos([(_,_,S,_,_,_)|Cs],R) :- solucoes((S,B,C,D), cuidado_prestado(S,B,C,D), P),
                                   servAtos(Cs,F),
-                                  concat(P,F,R). 
+                                  concat(P,F,R).
 
 maxLst([C],K,R) :- maior(C,K,X),
                    R is X.
@@ -612,7 +657,7 @@ maior(X,Y,Y) :- Y > X.
 % Extensão do predicado ordCst : I -> {V,F}
 
 ordCst(R) :- solucoes(Q,atos(_,_,_,_,_,Q),T),
-             ordenaL(T,R). 
+             ordenaL(T,R).
 
 
 ordenaL([X],[X]).
@@ -621,21 +666,21 @@ ordenaL([H|T],OL) :- ordenaL(T,OT),
 
 insr(X,[],[X]).
 insr(X,[H|T],[X,H|T]) :- X =< H.
-insr(X,[H|T],[H|NT]) :- X > H, 
+insr(X,[H|T],[H|NT]) :- X > H,
                         insr(X,T,NT).
 
 % Médicos de uma dada Instituição
 % Extensão do predicado medInst : I, R -> {V,F}
 
-medInst(I,R) :- solucoes(ID,(cuidado_prestado(ID,_,I,_)),L), 
+medInst(I,R) :- solucoes(ID,(cuidado_prestado(ID,_,I,_)),L),
                 getDoc(L,R).
 
 getDoc([],[]).
 getDoc([X|XS],RS) :- solucoes(M,atos(_,_,X,_,M,_),MS),
                      getDoc(XS,TS),
                      concat(MS,TS,F),
-                     retiraRep(F,RS).    
-  
+                     retiraRep(F,RS).
+
 % Média dos custos dos atos
 % Extensão do precicado mediaCusto : I, R -> {V,F}
 
