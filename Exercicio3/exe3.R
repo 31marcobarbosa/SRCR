@@ -3,6 +3,7 @@
 #install.packages("hydroGOF")
 
 #import das librabrias
+library(zoo)
 library(neuralnet)
 library(hydroGOF)
 
@@ -31,33 +32,36 @@ dataset3$fatigueLevel[dataset3$FatigueLevel == 7] <- 4
 
 #dados de treino entre as linhas 1 e 600, inclusive
 trainset<-dataset[1:600,]
-trainset<-dataset2[1:600,]
-trainset<-dataset3[1:600,]
+trainset2<-dataset2[1:600,]
+trainset2<-dataset3[1:600,]
 
 #dados de teste entre as linhas 601 e 844, inclusive
 testset<-dataset[601:844,]
-testset<-dataset2[601:844,]
-testset<-dataset3[601:844,]
+testset2<-dataset2[601:844,]
+testset2<-dataset3[601:844,]
 
 #definir camadas de entrada e saída da RNA
 formula01 <- FatigueLevel ~ Performance.KDTMean + Performance.MAMean + Performance.MVMean + Performance.TBCMean + Performance.DDCMean + Performance.DMSMean + Performance.AEDMean + Performance.ADMSLMean
 
 #treinar a rede neuronal
-
+treino01 <- neuralnet(formula01,trainset,hidden = c(9), threshold = 0.1)
+#treino01 <- neuralnet(formula01,trainset,hidden = c(9), threshold = 0.1, algorithm ='rprop+')
 
 #imprimir a rede neuronal
-
+print(treino01)
+plot(treino01)
 
 #definir variaveis de input
-
+vartest <- subset(testset,select = c("Performance.KDTMean","Performance.MAMean","Performance.MVMean","Performance.TBCMean","Performance.DDCMean","Performance.DMSMean","Performance.AEDMean","Performance.ADMSLMean"))
 
 #testar a rede com novos casos
-
+treino01.results <- compute(dataset,vartest)
 
 #imprimir resultados
-
+resultados <- data.frame(atual = testset$FatigueLevel, previsao = treino01.resultados$net.result)
 
 #imprimir resultados arredondados
-
+resultados$previsao <- round(resultados$previsao,digits = 3)
 
 #calcular o RMSE
+rmse(c(testset$FatigueLevel),c(resultados$previsao))
