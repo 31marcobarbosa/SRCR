@@ -44,8 +44,8 @@ testset2<-dataset3[601:844,]
 formula01 <- FatigueLevel ~ Performance.KDTMean + Performance.MAMean + Performance.MVMean + Performance.TBCMean + Performance.DDCMean + Performance.DMSMean + Performance.AEDMean + Performance.ADMSLMean
 
 #treinar a rede neuronal
-treino01 <- neuralnet(formula01,trainset,hidden = c(9), threshold = 0.1)
-#treino01 <- neuralnet(formula01,trainset,hidden = c(9), threshold = 0.1, algorithm ='rprop+')
+#treino01 <- neuralnet(formula01,trainset,hidden = c(4), threshold = 0.1)
+treino01 <- neuralnet(formula01,trainset,hidden = c(10,5), threshold = 0.1,lifesign = "full",algorithm ='rprop+')
 
 #imprimir a rede neuronal
 print(treino01)
@@ -55,13 +55,13 @@ plot(treino01)
 vartest <- subset(testset,select = c("Performance.KDTMean","Performance.MAMean","Performance.MVMean","Performance.TBCMean","Performance.DDCMean","Performance.DMSMean","Performance.AEDMean","Performance.ADMSLMean"))
 
 #testar a rede com novos casos
-treino01.results <- compute(dataset,vartest)
+treino01.results <- compute(treino01,vartest)
 
 #imprimir resultados
-resultados <- data.frame(atual = testset$FatigueLevel, previsao = treino01.resultados$net.result)
+resultados <- data.frame(atual = testset$FatigueLevel, previsao = treino01.results$net.result)
 
 #imprimir resultados arredondados
-resultados$previsao <- round(resultados$previsao,digits = 3)
+resultados$previsao <- round(resultados$previsao,digits = 6)
 
 #calcular o RMSE
 rmse(c(testset$FatigueLevel),c(resultados$previsao))
