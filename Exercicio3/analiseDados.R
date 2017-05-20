@@ -1,23 +1,26 @@
 library("leaps")
 
 dados <- read.csv("C:/Users/rj3/OneDrive/Documentos/GitHub/SRCR/Exercicio3/exaustao.csv")
+dados2 <- dados
+dados3 <- dados
+
+dataset2$ExhaustionLevel[dataset2$ExhaustionLevel <= 3] <- 0
+dataset2$ExhaustionLevel[dataset2$ExhaustionLevel > 3] <- 1
 
 
-
-resultado <- regsubsets(Performance.Task ~ Performance.KDTMean + Performance.MAMean + 
+resultadoTk <- regsubsets(Performance.Task ~ Performance.KDTMean + Performance.MAMean + 
                           Performance.MVMean + Performance.TBCMean + Performance.DDCMean + 
                           Performance.DMSMean + Performance.AEDMean + Performance.ADMSLMean,
-                        dados,nvmax = 6)
+                        dados,nvmax = 8)
 
 
-resultado2 <- regsubsets(FatigueLevel ~ Performance.KDTMean + Performance.MAMean + 
+resultadoFt <- regsubsets(FatigueLevel ~ Performance.KDTMean + Performance.MAMean + 
                           Performance.MVMean + Performance.TBCMean + Performance.DDCMean + 
                           Performance.DMSMean + Performance.AEDMean + Performance.ADMSLMean,
-                          dados,nvmax = 6)
+                          dados,nvmax = 8)
 
-summary(resultado)
-
-summary(resultado2)
+summary(resultadoTk)
+#summary(resultadoFt)
 
 
 
