@@ -4,8 +4,6 @@ dados <- read.csv("C:/Users/rj3/OneDrive/Documentos/GitHub/SRCR/Exercicio3/exaus
 dados2 <- dados
 dados3 <- dados
 
-dataset2$ExhaustionLevel[dataset2$ExhaustionLevel <= 3] <- 0
-dataset2$ExhaustionLevel[dataset2$ExhaustionLevel > 3] <- 1
 
 
 resultadoTk <- regsubsets(Performance.Task ~ Performance.KDTMean + Performance.MAMean + 
@@ -14,7 +12,7 @@ resultadoTk <- regsubsets(Performance.Task ~ Performance.KDTMean + Performance.M
                         dados,nvmax = 8)
 
 
-resultadoFt <- regsubsets(FatigueLevel ~ Performance.KDTMean + Performance.MAMean + 
+resultadoFt <- regsubsets(ExhaustionLevel ~ Performance.KDTMean + Performance.MAMean + 
                           Performance.MVMean + Performance.TBCMean + Performance.DDCMean + 
                           Performance.DMSMean + Performance.AEDMean + Performance.ADMSLMean,
                           dados,nvmax = 8)
