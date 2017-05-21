@@ -18,7 +18,7 @@ formula5 <- Performance.Task ~ Performance.KDTMean + Performance.DDCMean + Perfo
 formula6 <- Performance.Task ~ Performance.KDTMean + Performance.DDCMean + Performance.DMSMean + Performance.AEDMean + Performance.ADMSLMean + Performance.TBCMean 
 
 
-fresults <- neuralnet(formula3, trainset, threshold = 0.1 , hidden = c(20),algorithm='rprop-',lifesign = "full")
+fresults <- neuralnet(formula5, trainset, threshold = 0.05 , hidden = c(2,4),algorithm='rprop-',lifesign = "full")
 
 
 plot(fresults)
@@ -31,7 +31,7 @@ vartest5 <- subset(testset, select = c("Performance.KDTMean" , "Performance.DDCM
 vartest6 <- subset(testset, select = c("Performance.KDTMean" , "Performance.DDCMean" , "Performance.DMSMean" , "Performance.AEDMean" , "Performance.ADMSLMean" , "Performance.TBCMean"))
 
 
-fresults.resultados <- compute(fresults, vartest)
+fresults.resultados <- compute(fresults, vartest5)
 
 
 resultados <- data.frame(OutputEsperado = testset$Performance.Task, Output = fresults.resultados$net.result)

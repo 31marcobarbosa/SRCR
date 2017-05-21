@@ -55,9 +55,9 @@ ff5 <- ExhaustionLevel ~ Performance.MAMean + Performance.MVMean + Performance.D
 ff6 <- ExhaustionLevel ~ Performance.MAMean + Performance.MVMean + Performance.DDCMean + Performance.KDTMean + Performance.DMSMean + Performance.ADMSLMean
 
 
-fresults <- neuralnet(formula3, trainset, threshold = 0.1 , hidden = c(5),algorithm='slr',lifesign = "full")
-#fresults <- neuralnet(form, trainset2, threshold = 0.1 , hidden = c(5),algorithm='slr',lifesign = "full")
-#fresults <- neuralnet(ff, trainset3, threshold = 0.1 , hidden = c(20),algorithm='rprop-',lifesign = "full")
+#fresults <- neuralnet(formula5, trainset, threshold = 0.05 , hidden = c(2,4),algorithm='rprop-',lifesign = "full")
+#fresults <- neuralnet(form4, trainset2, threshold = 0.01 , hidden = c(15,10),algorithm='rprop-',lifesign = "full")
+fresults <- neuralnet(ff4, trainset3, threshold = 0.02 , hidden = c(4,3),algorithm='slr',lifesign = "full")
 
 
 #print(fresults)
@@ -73,7 +73,7 @@ varteste <- subset(testset2, select = c("Performance.KDTMean","Performance.MAMea
 varteste3 <- subset(testset2, select = c("Performance.KDTMean" , "Performance.DMSMean" , "Performance.ADMSLMean"))
 varteste4 <- subset(testset2, select = c("Performance.KDTMean" , "Performance.DMSMean" , "Performance.ADMSLMean" , "Performance.TBCMean"))
 varteste5 <- subset(testset2, select = c("Performance.KDTMean" , "Performance.MAMean" , "Performance.MVMean" , "Performance.DDCMean" , "Performance.DMSMean"))
-varteste6 <- subset(testset2, select = C("Performance.KDTMean" , "Performance.DMSMean" , "Performance.ADMSLMean" , "Performance.TBCMean" , "Performance.DDCMean" , "Performance.MAMean"))
+#varteste6 <- subset(testset2, select = C("Performance.KDTMean" , "Performance.DMSMean" , "Performance.ADMSLMean" , "Performance.TBCMean" , "Performance.DDCMean" , "Performance.MAMean"))
   
 vartt <- subset(testset3, select = c("Performance.KDTMean","Performance.MAMean","Performance.MVMean","Performance.TBCMean","Performance.DDCMean","Performance.DMSMean","Performance.AEDMean","Performance.ADMSLMean"))
 vartt3 <- subset(testset3, select = c("Performance.MAMean" , "Performance.MVMean" , "Performance.DDCMean"))
@@ -82,18 +82,18 @@ vartt5 <- subset(testset3, select = c("Performance.MAMean" , "Performance.MVMean
 vartt6 <- subset(testset3, select = c("Performance.MAMean" , "Performance.MVMean" , "Performance.DDCMean" , "Performance.KDTMean" , "Performance.DMSMean" , "Performance.ADMSLMean"))
 
 
-fresults.resultados <- compute(fresults, vartest3)
-#fresults.resultados <- compute(fresults, varteste)
-#fresults.resultados <- compute(fresults, vartt3)
+#fresults.resultados <- compute(fresults, vartest5)
+#fresults.resultados <- compute(fresults, varteste4)
+fresults.resultados <- compute(fresults, vartt4)
 
-resultados <- data.frame(OutputEsperado = testset$ExhaustionLevel, Output = fresults.resultados$net.result)
+#resultados <- data.frame(OutputEsperado = testset$ExhaustionLevel, Output = fresults.resultados$net.result)
 #resultados <- data.frame(OutputEsperado = testset2$ExhaustionLevel, Output = fresults.resultados$net.result)
-#resultados <- data.frame(OutputEsperado = testset3$ExhaustionLevel, Output = fresults.resultados$net.result)
+resultados <- data.frame(OutputEsperado = testset3$ExhaustionLevel, Output = fresults.resultados$net.result)
 
 
 resultados$Output <- round(resultados$Output,2)
 
 
-rmse(c(testset$ExhaustionLevel),c(resultados$Output))
-# rmse(c(testset2$ExhaustionLevel),c(resultados$Output))
-# rmse(c(testset3$ExhaustionLevel),c(resultados$Output))
+#rmse(c(testset$ExhaustionLevel),c(resultados$Output))
+#rmse(c(testset2$ExhaustionLevel),c(resultados$Output))
+rmse(c(testset3$ExhaustionLevel),c(resultados$Output))
